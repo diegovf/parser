@@ -32,8 +32,8 @@ public class Analizador extends java_cup.runtime.lr_parser {
   /** Production table. */
   protected static final short _production_table[][] = 
     unpackFromStrings(new String[] {
-    "\000\036\000\002\015\005\000\002\002\004\000\002\015" +
-    "\003\000\002\002\004\000\002\002\003\000\002\003\010" +
+    "\000\036\000\002\002\004\000\002\015\006\000\002\015" +
+    "\004\000\002\002\004\000\002\002\003\000\002\003\010" +
     "\000\002\003\003\000\002\007\007\000\002\004\003\000" +
     "\002\004\002\000\002\005\003\000\002\005\002\000\002" +
     "\006\003\000\002\006\002\000\002\010\010\000\002\010" +
@@ -49,10 +49,11 @@ public class Analizador extends java_cup.runtime.lr_parser {
   /** Parse-action table. */
   protected static final short[][] _action_table = 
     unpackFromStrings(new String[] {
-    "\000\007\000\006\003\004\041\005\001\002\000\004\002" +
-    "\uffff\001\002\000\004\043\010\001\002\000\004\002\007" +
-    "\001\002\000\004\002\000\001\002\000\004\031\011\001" +
-    "\002\000\004\002\001\001\002" });
+    "\000\011\000\006\003\004\042\005\001\002\000\004\032" +
+    "\013\001\002\000\004\044\010\001\002\000\004\002\007" +
+    "\001\002\000\004\002\001\001\002\000\004\031\011\001" +
+    "\002\000\004\032\012\001\002\000\004\002\000\001\002" +
+    "\000\004\002\uffff\001\002" });
 
   /** Access to parse-action table. */
   public short[][] action_table() {return _action_table;}
@@ -60,9 +61,10 @@ public class Analizador extends java_cup.runtime.lr_parser {
   /** <code>reduce_goto</code> table. */
   protected static final short[][] _reduce_table = 
     unpackFromStrings(new String[] {
-    "\000\007\000\004\015\005\001\001\000\002\001\001\000" +
+    "\000\011\000\004\015\005\001\001\000\002\001\001\000" +
     "\002\001\001\000\002\001\001\000\002\001\001\000\002" +
-    "\001\001\000\002\001\001" });
+    "\001\001\000\002\001\001\000\002\001\001\000\002\001" +
+    "\001" });
 
   /** Access to <code>reduce_goto</code> table. */
   public short[][] reduce_table() {return _reduce_table;}
@@ -91,7 +93,7 @@ public class Analizador extends java_cup.runtime.lr_parser {
   /** Indicates start state. */
   public int start_state() {return 0;}
   /** Indicates start production. */
-  public int start_production() {return 1;}
+  public int start_production() {return 0;}
 
   /** <code>EOF</code> Symbol index. */
   public int EOF_sym() {return 0;}
@@ -106,10 +108,15 @@ public class Analizador extends java_cup.runtime.lr_parser {
                 Reader reader = new FileReader("src\\compiler\\entrada.txt");
 		new Analizador(new Yylex(reader)).parse();
 	}
-	public void syntax_error(Symbol s){
-		report_error("Error de sintaxis. Linea: " + (s.right + 1) +
-		" Columna: " + s.left + ". Texto: \"" + s.value + "\"", null);
-	}
+	
+        public void syntax_error(Symbol s){
+            System.out.println("La Cadena:" + s.value+" en la Linea:" + (s.right+1) +" ,Columna: "+s.left+ "esta fuera de contextolklklklk." );
+        }
+
+        
+        public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{
+            System.out.println("La Cadena:" + s.value+" en la Linea:" + (s.right+1) +" ,Columna: "+s.left+ "esta fuera de contexto." );
+        }
 
 
 /** Cup generated class to encapsulate user supplied action code.*/
@@ -137,16 +144,7 @@ class CUP$Analizador$actions {
       switch (CUP$Analizador$act_num)
         {
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 0: // Hola ::= IDENTIFICADOR OPERADOR LITERALDECIMAL 
-            {
-              Object RESULT =null;
-		 System.out.println("Sentencia analizada correctamente. Sin errores."); 
-              CUP$Analizador$result = parser.getSymbolFactory().newSymbol("Hola",11, ((java_cup.runtime.Symbol)CUP$Analizador$stack.elementAt(CUP$Analizador$top-2)), ((java_cup.runtime.Symbol)CUP$Analizador$stack.peek()), RESULT);
-            }
-          return CUP$Analizador$result;
-
-          /*. . . . . . . . . . . . . . . . . . . .*/
-          case 1: // $START ::= Hola EOF 
+          case 0: // $START ::= Hola EOF 
             {
               Object RESULT =null;
 		int start_valleft = ((java_cup.runtime.Symbol)CUP$Analizador$stack.elementAt(CUP$Analizador$top-1)).left;
@@ -160,11 +158,20 @@ class CUP$Analizador$actions {
           return CUP$Analizador$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 2: // Hola ::= error 
+          case 1: // Hola ::= IDENTIFICADOR OPERADOR LITERALDECIMAL PCOMA 
             {
               Object RESULT =null;
-		 System.out.println("Error sintactico en la sentencia"); 
-              CUP$Analizador$result = parser.getSymbolFactory().newSymbol("Hola",11, ((java_cup.runtime.Symbol)CUP$Analizador$stack.peek()), ((java_cup.runtime.Symbol)CUP$Analizador$stack.peek()), RESULT);
+		 System.out.println("Sentencia analizada correctamente. Sin errores."); 
+              CUP$Analizador$result = parser.getSymbolFactory().newSymbol("Hola",11, ((java_cup.runtime.Symbol)CUP$Analizador$stack.elementAt(CUP$Analizador$top-3)), ((java_cup.runtime.Symbol)CUP$Analizador$stack.peek()), RESULT);
+            }
+          return CUP$Analizador$result;
+
+          /*. . . . . . . . . . . . . . . . . . . .*/
+          case 2: // Hola ::= error PCOMA 
+            {
+              Object RESULT =null;
+
+              CUP$Analizador$result = parser.getSymbolFactory().newSymbol("Hola",11, ((java_cup.runtime.Symbol)CUP$Analizador$stack.elementAt(CUP$Analizador$top-1)), ((java_cup.runtime.Symbol)CUP$Analizador$stack.peek()), RESULT);
             }
           return CUP$Analizador$result;
 

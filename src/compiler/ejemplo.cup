@@ -9,16 +9,23 @@ parser code
                 Reader reader = new FileReader("src\\compiler\\entrada.txt");
 		new Analizador(new Yylex(reader)).parse();
 	}
-	public void syntax_error(Symbol s){
-		report_error("Error de sintaxis. Linea: " + (s.right + 1) +
-		" Columna: " + s.left + ". Texto: \"" + s.value + "\"", null);
-	}
+	
+        public void syntax_error(Symbol s){
+            System.out.println("La Cadena:" + s.value+" en la Linea:" + (s.right+1) +" ,Columna: "+s.left+ "esta fuera de contextolklklklk." );
+        }
+
+        public void int error_sync_size() {
+        }
+        public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{
+            System.out.println("La Cadena:" + s.value+" en la Linea:" + (s.right+1) +" ,Columna: "+s.left+ "esta fuera de contexto." );
+        }
 :}
 
 terminal String DIFERENTE, MAYORIGUAL, MENORIGUAL, MENOSNUM, MENOSUNO, TERMINAL;
 terminal String MASNUM, MASUNO, IGUAL, MAYOR, MENOR, PYCOMA;
 terminal String COMA, PARIZQ, PARDER, LLAVEIZQ, LLAVEDER, FOR, INT, ID;
 terminal integer NUMERO, LITERALDECIMAL; 
+terminal PCOMA;
 terminal LITERALBOOLEANO, LITERALNULL, LITERALPTOFLOTANTE, LITERALSTRING, LITERALOCTAL;
 terminal LITERALHEXADECIMAL, RESERVADA, IDENTIFICADOR, SEPARADOR, OPERADOR;
 terminal ERROR;
@@ -26,9 +33,11 @@ terminal ERROR;
 non terminal Lista, Sentencia, E1, E2, E3, Expresion, Inicializacion, Condicion, Comp, Incremento, Inc;
 non terminal Hola;
 
-Hola ::= IDENTIFICADOR OPERADOR LITERALDECIMAL {: System.out.println("Sentencia analizada correctamente. Sin errores."); :}
-			| error {: System.out.println("Error sintactico en la sentencia"); :}
+start with Hola;
+Hola ::= IDENTIFICADOR OPERADOR LITERALDECIMAL PCOMA {: System.out.println("Sentencia analizada correctamente. Sin errores."); :}
+			| error PCOMA
                         ;
+protected int error_sync_size()
 
 Lista ::= Lista Sentencia
 		| Sentencia

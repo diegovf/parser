@@ -90,7 +90,7 @@ goto|if|int|long|register|return|short|signed|sizeof|static|struct|switch|typede
 union|unsigned|void|volatile|while
 
 /* SEPARADORES */
-SEPARADOR = "("|")"|"{"|"}"|"["|"]"|";"|","|"."
+SEPARADOR = "("|")"|"{"|"}"|"["|"]"|","|"."
 
 /* OPERADORES */
 OPERADORES = =|"=="|"+"|"*"|"-"|"/"|"<"|"<="|">"|">="|"!="|"!"|"||"|"&&"|"<<"|"<<="|
@@ -111,6 +111,8 @@ OPERADORES = =|"=="|"+"|"*"|"-"|"/"|"<"|"<="|">"|">="|"!="|"!"|"||"|"&&"|"<<"|"<
   "true"                         {return new Symbol(sym.LITERALBOOLEANO, yychar, yyline, yytext());}
   "false"                        {return new Symbol(sym.LITERALBOOLEANO, yychar, yyline, yytext());}
   
+  ";"                            {return new Symbol(sym.PCOMA, yychar, yyline, yytext());}
+
   /*LITERAL NULL*/
   "null"                         {return new Symbol(sym.LITERALNULL, yychar, yyline, yytext());}
   
