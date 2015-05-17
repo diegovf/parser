@@ -1,0 +1,71 @@
+package compiler;
+import java.io.*;
+import java_cup.runtime.*; 
+
+parser code
+{:
+	public static void main(String args[]) throws Exception{
+		//new parser(new Yylex(new FileInputStream(args[0]))).parse();
+                Reader reader = new FileReader("src\\compiler\\entrada.txt");
+		new Analizador(new Yylex(reader)).parse();
+	}
+	public void syntax_error(Symbol s){
+		report_error("Error de sintaxis. Linea: " + (s.right + 1) +
+		" Columna: " + s.left + ". Texto: \"" + s.value + "\"", null);
+	}
+:}
+
+terminal String DIFERENTE, MAYORIGUAL, MENORIGUAL, MENOSNUM, MENOSUNO, TERMINAL;
+terminal String MASNUM, MASUNO, IGUAL, MAYOR, MENOR, PYCOMA;
+terminal String COMA, PARIZQ, PARDER, LLAVEIZQ, LLAVEDER, FOR, INT, ID;
+terminal integer NUMERO, LITERALDECIMAL; 
+terminal LITERALBOOLEANO, LITERALNULL, LITERALPTOFLOTANTE, LITERALSTRING, LITERALOCTAL;
+terminal LITERALHEXADECIMAL, RESERVADA, IDENTIFICADOR, SEPARADOR, OPERADOR;
+terminal ERROR;
+
+non terminal Lista, Sentencia, E1, E2, E3, Expresion, Inicializacion, Condicion, Comp, Incremento, Inc;
+non terminal Hola;
+
+Hola ::= IDENTIFICADOR OPERADOR LITERALDECIMAL {: System.out.println("Sentencia analizada correctamente. Sin errores."); :}
+			| error {: System.out.println("Error sintactico en la sentencia"); :}
+                        ;
+
+Lista ::= Lista Sentencia
+		| Sentencia
+		;
+
+Sentencia ::= FOR PARIZQ Expresion PARDER LLAVEIZQ LLAVEDER {: System.out.println("Sentencia analizada correctamente. Sin errores."); :}
+			| error {: System.out.println("Error sintactico en la sentencia"); :}
+			;
+Expresion ::= E1 PYCOMA E2 PYCOMA E3
+			;
+E1 ::= Inicializacion
+		|
+		;
+E2 ::= Condicion
+		|
+		;
+E3 ::= Incremento
+		|
+		;
+Inicializacion ::= Inicializacion COMA INT ID IGUAL NUMERO
+				| INT ID IGUAL NUMERO
+				;
+Condicion ::= Condicion COMA ID Comp NUMERO
+			| ID Comp NUMERO
+			;
+Comp ::= DIFERENTE
+		| MAYORIGUAL
+		| MENORIGUAL
+		| MAYOR
+		| MENOR
+		| IGUAL
+		;
+Incremento ::= Incremento COMA ID Inc
+			| ID Inc
+			;
+Inc ::= MENOSNUM NUMERO
+		| MENOSUNO
+		| MASNUM NUMERO
+		| MASUNO
+		;
