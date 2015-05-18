@@ -19,10 +19,6 @@ parser code
             System.out.println("Error sintactico en la sentencia");
             System.out.println("La Cadena: " + s.value+" en la Linea: " + (s.right+1) +" ,Columna: "+s.left+ " esta fuera de contexto." );
         }
-
-        protected int error_sync_size() {
-            return 1;
-        }
 :}
 
 terminal String DIFERENTE, MAYORIGUAL, MENORIGUAL, MENOSNUM, MENOSUNO, TERMINAL;
@@ -43,7 +39,8 @@ non terminal function_char, function_int, function_long, function_short, functio
 non terminal parametros_otp, parametros, parametro;
 non terminal cuerpo_otp, cuerpo, declaraciones_otp, declaracion_otp, declaraciones, declaracion;
 non terminal type, sentencias_otp, sentencia, while, condicion, next;
-non terminal while_opt;
+non terminal while_opt, declaraciones_pri, sentencias, list_globals, list_functions;
+non terminal list_declaraciones, list_sentencias;
 
 precedence left INT, LONG, CHAR, SHORT, PYCOMA;
 precedence left LLAVEDER, PYCOMA;
@@ -54,35 +51,23 @@ next ::= LLAVEDER
         | PYCOMA
         ;
 
-begin ::= globals functions|;
+begin ::= globals | list_functions;
 
-globals ::= global
-            | globals global
-            |
+globals ::= list_globals list_functions;
+
+list_globals  ::= global
+            | list_globals  global
             ;
 
 global ::= type_char
             | type_int
             | type_long
             | type_short
-            ;
-
-type_char ::= CHAR IDENTIFICADOR IGUAL COMILLA IDENTIFICADOR COMILLA PYCOMA {: System.out.println("si, global char"); :}
-         
-            ;
-type_int ::= INT IDENTIFICADOR IGUAL LITERALDECIMAL PYCOMA {: System.out.println("si, global int"); :}
-            
-            ;
-type_long ::= LONG IDENTIFICADOR IGUAL LITERALPTOFLOTANTE PYCOMA {: System.out.println("si, global long"); :}
-            
-            ;
-type_short ::= SHORT IDENTIFICADOR IGUAL LITERALDECIMAL PYCOMA {: System.out.println("si, global short"); :}
-      
-            ;
-
-functions ::= function
-            | functions function
             | error PYCOMA
+            ;
+
+list_functions ::= function
+            | list_functions function
             ;
 
 function ::= function_char
@@ -90,17 +75,18 @@ function ::= function_char
             | function_long
             | function_short
             | function_void
+            | error LLAVEDER
             ;
 
-function_char ::= CHAR IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ cuerpo_otp LLAVEDER {: System.out.println("si, function char"); :}
+function_char ::= CHAR IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ LLAVEDER {: System.out.println("si, function char"); :}
             ;
-function_int ::= INT IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ cuerpo_otp LLAVEDER {: System.out.println("si, function int"); :}
+function_int ::= INT IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ cuerpo LLAVEDER {: System.out.println("si, function int"); :}
             ;
-function_long ::= LONG IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ cuerpo_otp LLAVEDER {: System.out.println("si, function long"); :}
+function_long ::= LONG IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ  LLAVEDER {: System.out.println("si, function long"); :}
             ;
-function_short ::= SHORT IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ cuerpo_otp LLAVEDER {: System.out.println("si, function short"); :}
+function_short ::= SHORT IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ LLAVEDER {: System.out.println("si, function short"); :}
             ;
-function_short ::= VOID IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ cuerpo_otp LLAVEDER {: System.out.println("si, function void"); :}
+function_short ::= VOID IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ  LLAVEDER {: System.out.println("si, function void"); :}
             ;
 parametros_otp ::= parametros|;
 
@@ -115,23 +101,21 @@ parametro ::= CHAR IDENTIFICADOR
             | SHORT IDENTIFICADOR
             ;
 
-cuerpo_otp ::= cuerpo;
-
-cuerpo ::= declaraciones_otp sentencias_otp
+cuerpo ::= declaraciones | list_sentencias
             ;
 
-declaraciones_otp ::= declaraciones;
+declaraciones ::= list_declaraciones list_sentencias;
 
-declaraciones ::= declaracion 
-                  | declaraciones declaracion
-                  | error PYCOMA
-                  ;
+ list_declaraciones ::= declaracion
+                    |  list_declaraciones declaracion
+                    ;
 
 declaracion ::= type_char
                 | type_int
                 | type_long
                 | type_short
                 | IDENTIFICADOR IGUAL type PYCOMA
+                | error PYCOMA
                 ;
 
 type ::= LITERALDECIMAL
@@ -139,18 +123,30 @@ type ::= LITERALDECIMAL
         | LITERALPTOFLOTANTE
         ;
 
-sentencias_otp ::= sentencia
-                | sentencias_otp sentencia
+list_sentencias ::= sentencia
+                | list_sentencias sentencia                
                 ;
 
 sentencia ::= while
-            | error LLAVEDER
             ;
 
-while ::= WHILE PARIZQ condicion PARDER LLAVEIZQ LLAVEDER {: System.out.println("Siii, while"); :};
+while ::= WHILE PARIZQ condicion PARDER LLAVEIZQ list_sentencias LLAVEDER {: System.out.println("Siii, while"); :}
+        | error LLAVEDER
+        ;
                        
 condicion ::= LITERALBOOLEANO
                 ;
 
-                
+type_char ::= CHAR IDENTIFICADOR IGUAL COMILLA IDENTIFICADOR COMILLA PYCOMA {: System.out.println("si, global char"); :}
+         
+            ;
+type_int ::= INT IDENTIFICADOR IGUAL LITERALDECIMAL PYCOMA {: System.out.println("si, global int"); :}
+            
+            ;
+type_long ::= LONG IDENTIFICADOR IGUAL LITERALPTOFLOTANTE PYCOMA {: System.out.println("si, global long"); :}
+            
+            ;
+type_short ::= SHORT IDENTIFICADOR IGUAL LITERALDECIMAL PYCOMA {: System.out.println("si, global short"); :}
+      
+            ;
                 
