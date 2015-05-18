@@ -109,6 +109,15 @@ OPERADORES = =|"=="|"+"|"*"|"-"|"/"|"<"|"<="|">"|">="|"!="|"!"|"||"|"&&"|"<<"|"<
     "{"   {return new Symbol(sym.LLAVEIZQ, yychar, yyline, yytext());}
     "}"   {return new Symbol(sym.LLAVEDER, yychar, yyline, yytext());}
     "int"   {return new Symbol(sym.INT, yychar, yyline, yytext());}
+    "char"   {return new Symbol(sym.CHAR, yychar, yyline, yytext());}
+    "long"   {return new Symbol(sym.LONG, yychar, yyline, yytext());}
+    "short"   {return new Symbol(sym.SHORT, yychar, yyline, yytext());}
+    "void"   {return new Symbol(sym.VOID, yychar, yyline, yytext());}
+    "package"   {return new Symbol(sym.PACKAGE, yychar, yyline, yytext());}
+    "import"   {return new Symbol(sym.IMPORT, yychar, yyline, yytext());}
+    "while"   {return new Symbol(sym.WHILE, yychar, yyline, yytext());}
+    "'"   {return new Symbol(sym.COMILLA, yychar, yyline, yytext());}
+
   /* PALABRAS RESERVADAS */
   {PR}                           {return new Symbol(sym.RESERVADA, yychar, yyline, yytext());}
   

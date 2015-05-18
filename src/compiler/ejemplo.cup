@@ -11,11 +11,17 @@ parser code
 	}
 	
         public void syntax_error(Symbol s){
-            System.out.println("La Cadena:" + s.value+" en la Linea:" + (s.right+1) +" ,Columna: "+s.left+ "esta fuera de contextolklklklk." );
+            System.out.println("Error sintactico en la sentencia");
+            System.out.println("La Cadena: " + s.value+" en la Linea: " + (s.right+1) +" ,Columna: "+s.left+ " esta fuera de contexto." );
         }
 
         public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{
-            System.out.println("La Cadena:" + s.value+" en la Linea:" + (s.right+1) +" ,Columna: "+s.left+ "esta fuera de contexto." );
+            System.out.println("Error sintactico en la sentencia");
+            System.out.println("La Cadena: " + s.value+" en la Linea: " + (s.right+1) +" ,Columna: "+s.left+ " esta fuera de contexto." );
+        }
+
+        protected int error_sync_size() {
+            return 1;
         }
 :}
 
@@ -23,50 +29,126 @@ terminal String DIFERENTE, MAYORIGUAL, MENORIGUAL, MENOSNUM, MENOSUNO, TERMINAL;
 terminal String MASNUM, MASUNO, IGUAL, MAYOR, MENOR, PYCOMA;
 terminal String COMA, PARIZQ, PARDER, LLAVEIZQ, LLAVEDER, FOR, INT, ID;
 terminal integer NUMERO, LITERALDECIMAL; 
-terminal PCOMA;
+terminal CHAR, LONG, SHORT, COMILLA;
+terminal PCOMA, VOID;
 terminal LITERALBOOLEANO, LITERALNULL, LITERALPTOFLOTANTE, LITERALSTRING, LITERALOCTAL;
 terminal LITERALHEXADECIMAL, RESERVADA, IDENTIFICADOR, SEPARADOR, OPERADOR;
-terminal ERROR;
+terminal ERROR, PACKAGE, IMPORT, WHILE;
 
-non terminal Lista, Sentencia, E1, E2, E3, Expresion, Inicializacion, Condicion, Comp, Incremento, Inc;
-non terminal Hola;
 
-Lista ::= Lista Sentencia
-		| Sentencia
-		;
+non terminal globals_opt, functions_opt, begin, globals_otp;
+non terminal globals, global, functions, function;
+non terminal type_char, type_int, type_long, type_short;
+non terminal function_char, function_int, function_long, function_short, function_void;
+non terminal parametros_otp, parametros, parametro;
+non terminal cuerpo_otp, cuerpo, declaraciones_otp, declaracion_otp, declaraciones, declaracion;
+non terminal type, sentencias_otp, sentencia, while, condicion, next;
 
-Sentencia ::= FOR PARIZQ Expresion PARDER LLAVEIZQ LLAVEDER {: System.out.println("Sentencia analizada correctamente. Sin errores."); :}
-			| error PYCOMA{: System.out.println("Error sintactico en la sentencia"); :}
-			;
-Expresion ::= E1 PYCOMA E2 PYCOMA E3
-			;
-E1 ::= Inicializacion
-		|
-		;
-E2 ::= Condicion
-		|
-		;
-E3 ::= Incremento
-		|
-		;
-Inicializacion ::= Inicializacion COMA INT IDENTIFICADOR IGUAL LITERALDECIMAL
-				| INT IDENTIFICADOR IGUAL LITERALDECIMAL
-				;
-Condicion ::= Condicion COMA IDENTIFICADOR OPERADOR LITERALDECIMAL
-			| IDENTIFICADOR OPERADOR LITERALDECIMAL
-			;
-Comp ::= DIFERENTE
-		| MAYORIGUAL
-		| MENORIGUAL
-		| MAYOR
-		| MENOR
-		| IGUAL
-		;
-Incremento ::= Incremento COMA IDENTIFICADOR Inc
-			| IDENTIFICADOR OPERADOR
-			;
-Inc ::= MENOSNUM NUMERO
-		| MENOSUNO
-		| MASNUM NUMERO
-		| MASUNO
-		;
+precedence left INT, LONG, CHAR, SHORT, PYCOMA;
+precedence left LLAVEDER, PYCOMA;
+
+start with begin;
+
+next ::= LLAVEDER
+        | PYCOMA
+        ;
+
+begin ::= globals functions|;
+
+globals ::= global
+            | globals global
+            |
+            ;
+
+global ::= type_char
+            | type_int
+            | type_long
+            | type_short
+            ;
+
+type_char ::= CHAR IDENTIFICADOR IGUAL COMILLA IDENTIFICADOR COMILLA PYCOMA {: System.out.println("si, global char"); :}
+         
+            ;
+type_int ::= INT IDENTIFICADOR IGUAL LITERALDECIMAL PYCOMA {: System.out.println("si, global int"); :}
+            
+            ;
+type_long ::= LONG IDENTIFICADOR IGUAL LITERALPTOFLOTANTE PYCOMA {: System.out.println("si, global long"); :}
+            
+            ;
+type_short ::= SHORT IDENTIFICADOR IGUAL LITERALDECIMAL PYCOMA {: System.out.println("si, global short"); :}
+      
+            ;
+
+functions ::= function
+            | functions function
+            | error PYCOMA
+            ;
+
+function ::= function_char
+            | function_int
+            | function_long
+            | function_short
+            | function_void
+            ;
+
+function_char ::= CHAR IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ cuerpo_otp LLAVEDER {: System.out.println("si, function char"); :}
+            ;
+function_int ::= INT IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ cuerpo_otp LLAVEDER {: System.out.println("si, function int"); :}
+            ;
+function_long ::= LONG IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ cuerpo_otp LLAVEDER {: System.out.println("si, function long"); :}
+            ;
+function_short ::= SHORT IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ cuerpo_otp LLAVEDER {: System.out.println("si, function short"); :}
+            ;
+function_short ::= VOID IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ cuerpo_otp LLAVEDER {: System.out.println("si, function void"); :}
+            ;
+parametros_otp ::= parametros|;
+
+parametros ::= parametro
+                | parametros COMA parametro
+                | error PYCOMA
+                ;
+
+parametro ::= CHAR IDENTIFICADOR
+            | INT IDENTIFICADOR
+            | LONG IDENTIFICADOR
+            | SHORT IDENTIFICADOR
+            ;
+
+cuerpo_otp ::= cuerpo;
+
+cuerpo ::= declaraciones_otp
+            ;
+
+declaraciones_otp ::= declaraciones ;
+
+declaraciones ::= declaracion 
+                  | declaraciones declaracion
+                  | error PYCOMA
+                  ;
+
+declaracion ::= type_char
+                | type_int
+                | type_long
+                | type_short
+                | IDENTIFICADOR IGUAL type PYCOMA
+                ;
+
+type ::= LITERALDECIMAL
+        | COMILLA IDENTIFICADOR COMILLA
+        | LITERALPTOFLOTANTE
+        ;
+
+sentencias_otp ::= sentencia
+                ;
+
+sentencia ::= while
+            | error PYCOMA
+            ;
+
+while ::= WHILE PARIZQ condicion PARDER LLAVEIZQ cuerpo_otp LLAVEDER {: System.out.println("Siii, while"); :};
+                       
+condicion ::= LITERALBOOLEANO
+                ;
+
+                
+                
