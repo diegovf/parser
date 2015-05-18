@@ -26,11 +26,11 @@ terminal String MASNUM, MASUNO, IGUAL, MAYOR, MENOR, PYCOMA;
 terminal String COMA, PARIZQ, PARDER, LLAVEIZQ, LLAVEDER, FOR, INT, ID;
 terminal integer NUMERO, LITERALDECIMAL; 
 terminal CHAR, LONG, SHORT, COMILLA;
-terminal PCOMA, VOID;
+terminal PCOMA, VOID, CONST;
 terminal LITERALNULL, LITERALPTOFLOTANTE, LITERALSTRING, LITERALOCTAL, LITERALBOOLEANO;
 terminal LITERALHEXADECIMAL, RESERVADA, IDENTIFICADOR, SEPARADOR, OPERADOR;
-terminal ERROR, PACKAGE, IMPORT, WHILE, LISTABOOLEANOS, NEGADO;
-terminal INC_DEC, OPERADORSIMPLE, OPERADORCOMBINADO,IF;
+terminal ERROR, PACKAGE, IMPORT, WHILE, LISTABOOLEANOS, NEGADO, BREAK;
+terminal INC_DEC, OPERADORSIMPLE, OPERADORCOMBINADO,IF, SWITCH, CASE, DEFAULT, DOSPUNTOS;
 
 
 non terminal globals_opt, functions_opt, begin, globals_otp;
@@ -43,7 +43,8 @@ non terminal type, sentencias_otp, sentencia, while, for, condicion, next;
 non terminal while_opt, declaraciones_pri, sentencias, list_globals, list_functions;
 non terminal list_declaraciones, list_sentencias, cuerpo_sentencia;
 non terminal declaraciones_while, list_sentencias_while, booleano, type_Cond,operacion;
-non terminal list_sentencias_estruct, declaraciones_estruct, first_for, if;
+non terminal list_sentencias_estruct, declaraciones_estruct, first_for, if, switch;
+non terminal case_body, case_expression, cases, default, case, consts;
 
 precedence left INT, LONG, CHAR, SHORT, PYCOMA;
 precedence left LLAVEDER, PYCOMA;
@@ -121,8 +122,16 @@ declaracion ::= type_char
                 | type_long
                 | type_short
                 | IDENTIFICADOR IGUAL type PYCOMA
-                | error PYCOMA
+                | CONST IDENTIFICADOR IGUAL LITERALDECIMAL PYCOMA
+                | consts
+                | error PYCOMA 
                 ;
+
+consts ::= CONST type_char
+            | CONST type_short
+            | CONST type_long
+            ;
+
 
 type ::= LITERALDECIMAL
         | COMILLA IDENTIFICADOR COMILLA
@@ -136,6 +145,7 @@ list_sentencias ::= sentencia
 sentencia ::= while
               |for
               |if
+              |switch
               |error LLAVEDER
               ;
 
@@ -147,6 +157,27 @@ for ::=   FOR PARIZQ first_for PYCOMA condicion PYCOMA operacion
           | FOR PARIZQ IDENTIFICADOR IGUAL LITERALDECIMAL PYCOMA condicion PYCOMA operacion 
           PARDER LLAVEIZQ cuerpo_sentencia LLAVEDER  {: System.out.println("Siii, for"); :}
           ;
+
+switch ::= SWITCH PARIZQ IDENTIFICADOR PARDER LLAVEIZQ cases default LLAVEDER
+        ;
+
+cases::= case
+        | cases case
+        ;
+
+case::= CASE LITERALDECIMAL DOSPUNTOS case_expression
+        ;
+
+
+case_expression::= cuerpo_sentencia BREAK
+                 | cuerpo_sentencia
+                 | BREAK           
+                 ;
+
+default::= DEFAULT cuerpo_sentencia BREAK
+            | DEFAULT BREAK
+            | DEFAULT
+            ;
 
 first_for ::= IDENTIFICADOR IGUAL LITERALDECIMAL
             | IDENTIFICADOR

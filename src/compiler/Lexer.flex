@@ -127,6 +127,11 @@ OPERADORSIMPLE = "+"|"-"|"*"|"/"|"%"
     "if"      {return new Symbol(sym.IF, yychar, yyline, yytext());}
     "'"   {return new Symbol(sym.COMILLA, yychar, yyline, yytext());}
     "!"   {return new Symbol(sym.NEGADO, yychar, yyline, yytext());}
+    "switch" {return new Symbol(sym.SWITCH, yychar, yyline, yytext());}
+    "case"   {return new Symbol(sym.CASE, yychar, yyline, yytext());}
+    "default" {return new Symbol(sym.DEFAULT, yychar, yyline, yytext());}
+    ":"       {return new Symbol(sym.DOSPUNTOS, yychar, yyline, yytext());}
+    "const"    {return new Symbol(sym.CONST, yychar, yyline, yytext());}
     
   /* OPERADORES SIMPLE */
   {OPERADORSIMPLE}              {return new Symbol(sym.OPERADORCOMBINADO, yychar, yyline, yytext());}

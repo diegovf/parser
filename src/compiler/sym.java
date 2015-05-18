@@ -8,15 +8,17 @@ package compiler;
 /** CUP generated class containing symbol constants. */
 public class sym {
   /* terminals */
-  public static final int INC_DEC = 46;
+  public static final int INC_DEC = 47;
+  public static final int DOSPUNTOS = 54;
   public static final int NUMERO = 22;
   public static final int SHORT = 26;
   public static final int LITERALNULL = 30;
   public static final int LITERALPTOFLOTANTE = 31;
   public static final int CHAR = 24;
   public static final int LITERALDECIMAL = 23;
+  public static final int CASE = 52;
   public static final int DIFERENTE = 2;
-  public static final int OPERADORSIMPLE = 47;
+  public static final int OPERADORSIMPLE = 48;
   public static final int LLAVEDER = 18;
   public static final int INT = 20;
   public static final int SEPARADOR = 38;
@@ -26,9 +28,9 @@ public class sym {
   public static final int IGUAL = 10;
   public static final int LITERALBOOLEANO = 34;
   public static final int MENOSNUM = 5;
-  public static final int OPERADORCOMBINADO = 48;
+  public static final int OPERADORCOMBINADO = 49;
   public static final int LISTABOOLEANOS = 44;
-  public static final int IF = 49;
+  public static final int IF = 50;
   public static final int MASNUM = 8;
   public static final int ID = 21;
   public static final int MAYORIGUAL = 3;
@@ -39,10 +41,12 @@ public class sym {
   public static final int COMILLA = 27;
   public static final int COMA = 14;
   public static final int MENOR = 12;
+  public static final int BREAK = 46;
   public static final int RESERVADA = 36;
   public static final int VOID = 29;
   public static final int LITERALOCTAL = 33;
   public static final int ERROR = 40;
+  public static final int SWITCH = 51;
   public static final int PCOMA = 28;
   public static final int IMPORT = 42;
   public static final int MAYOR = 11;
@@ -51,6 +55,7 @@ public class sym {
   public static final int PACKAGE = 41;
   public static final int WHILE = 43;
   public static final int LLAVEIZQ = 17;
+  public static final int DEFAULT = 53;
   public static final int MENOSUNO = 6;
   public static final int LONG = 25;
   public static final int LITERALHEXADECIMAL = 35;
@@ -105,10 +110,15 @@ public class sym {
   "WHILE",
   "LISTABOOLEANOS",
   "NEGADO",
+  "BREAK",
   "INC_DEC",
   "OPERADORSIMPLE",
   "OPERADORCOMBINADO",
-  "IF"
+  "IF",
+  "SWITCH",
+  "CASE",
+  "DEFAULT",
+  "DOSPUNTOS"
   };
 }
 
