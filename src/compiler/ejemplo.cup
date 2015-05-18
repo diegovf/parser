@@ -43,6 +43,7 @@ non terminal function_char, function_int, function_long, function_short, functio
 non terminal parametros_otp, parametros, parametro;
 non terminal cuerpo_otp, cuerpo, declaraciones_otp, declaracion_otp, declaraciones, declaracion;
 non terminal type, sentencias_otp, sentencia, while, condicion, next;
+non terminal while_opt;
 
 precedence left INT, LONG, CHAR, SHORT, PYCOMA;
 precedence left LLAVEDER, PYCOMA;
@@ -116,10 +117,10 @@ parametro ::= CHAR IDENTIFICADOR
 
 cuerpo_otp ::= cuerpo;
 
-cuerpo ::= declaraciones_otp
+cuerpo ::= declaraciones_otp sentencias_otp
             ;
 
-declaraciones_otp ::= declaraciones ;
+declaraciones_otp ::= declaraciones;
 
 declaraciones ::= declaracion 
                   | declaraciones declaracion
@@ -139,13 +140,14 @@ type ::= LITERALDECIMAL
         ;
 
 sentencias_otp ::= sentencia
+                | sentencias_otp sentencia
                 ;
 
 sentencia ::= while
-            | error PYCOMA
+            | error LLAVEDER
             ;
 
-while ::= WHILE PARIZQ condicion PARDER LLAVEIZQ cuerpo_otp LLAVEDER {: System.out.println("Siii, while"); :};
+while ::= WHILE PARIZQ condicion PARDER LLAVEIZQ LLAVEDER {: System.out.println("Siii, while"); :};
                        
 condicion ::= LITERALBOOLEANO
                 ;

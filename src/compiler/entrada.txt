@@ -7,6 +7,13 @@ char main(int hola, char hola){
     a = 12;
     char x = a';
     x = 's';
+    int x = 12;
+
+    while (true) {}
+    while(false){}
 }
 
-int main(){}
+int main(){ 
+    int a = 2;
+    while(false){}
+}
