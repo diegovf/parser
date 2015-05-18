@@ -98,6 +98,14 @@ OPERADORES = =|"=="|"+"|"*"|"-"|"/"|"<"|"<="|">"|">="|"!="|"!"|"||"|"&&"|"<<"|"<
 "(type)"|"*"|"&"|"new"|"true"|"false"|"%"|"#include"|"delete"|"#define"|"-="
 |"+="|"#import"|"?:"|"#ifdef"|"#else"|"#endif"|"#pragma"|"#undef"|"#error"
 
+LISTABOOLEANOS =  "=="|">="|">"|"<="|"<"|"!="|"||"|"&&"
+
+INC_DEC = "++"|"--"
+
+OPERADORCOMBINADO = "+="|"-="|"*="|"/="
+
+OPERADORSIMPLE = "+"|"-"|"*"|"/"|"%"
+
 %state STRING, CHARLITERAL
 
 %%
@@ -116,11 +124,23 @@ OPERADORES = =|"=="|"+"|"*"|"-"|"/"|"<"|"<="|">"|">="|"!="|"!"|"||"|"&&"|"<<"|"<
     "package"   {return new Symbol(sym.PACKAGE, yychar, yyline, yytext());}
     "import"   {return new Symbol(sym.IMPORT, yychar, yyline, yytext());}
     "while"   {return new Symbol(sym.WHILE, yychar, yyline, yytext());}
+    "if"      {return new Symbol(sym.IF, yychar, yyline, yytext());}
     "'"   {return new Symbol(sym.COMILLA, yychar, yyline, yytext());}
+    "!"   {return new Symbol(sym.NEGADO, yychar, yyline, yytext());}
+    
+  /* OPERADORES SIMPLE */
+  {OPERADORSIMPLE}              {return new Symbol(sym.OPERADORCOMBINADO, yychar, yyline, yytext());}
+
+  /* OPERADORES COMBINADOS */
+  {OPERADORCOMBINADO}           {return new Symbol(sym.OPERADORCOMBINADO, yychar, yyline, yytext());}
+
+  /* INCREMENTAR DECREMENTAR */
+  {INC_DEC}                     {return new Symbol(sym.INC_DEC, yychar, yyline, yytext());}
 
   /* PALABRAS RESERVADAS */
   {PR}                           {return new Symbol(sym.RESERVADA, yychar, yyline, yytext());}
   
+    {LISTABOOLEANOS}            {return new Symbol(sym.LISTABOOLEANOS, yychar, yyline, yytext());}
   /* LITERALES BOOLEANOS */
   "true"                         {return new Symbol(sym.LITERALBOOLEANO, yychar, yyline, yytext());}
   "false"                        {return new Symbol(sym.LITERALBOOLEANO, yychar, yyline, yytext());}
@@ -131,7 +151,7 @@ OPERADORES = =|"=="|"+"|"*"|"-"|"/"|"<"|"<="|">"|">="|"!="|"!"|"||"|"&&"|"<<"|"<
 
   /*LITERAL NULL*/
   "null"                         {return new Symbol(sym.LITERALNULL, yychar, yyline, yytext());}
-  
+
   /* SEPARADORES */
   {SEPARADOR}                    {return new Symbol(sym.SEPARADOR, yychar, yyline, yytext());}
   

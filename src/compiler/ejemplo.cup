@@ -27,9 +27,10 @@ terminal String COMA, PARIZQ, PARDER, LLAVEIZQ, LLAVEDER, FOR, INT, ID;
 terminal integer NUMERO, LITERALDECIMAL; 
 terminal CHAR, LONG, SHORT, COMILLA;
 terminal PCOMA, VOID;
-terminal LITERALBOOLEANO, LITERALNULL, LITERALPTOFLOTANTE, LITERALSTRING, LITERALOCTAL;
+terminal LITERALNULL, LITERALPTOFLOTANTE, LITERALSTRING, LITERALOCTAL, LITERALBOOLEANO;
 terminal LITERALHEXADECIMAL, RESERVADA, IDENTIFICADOR, SEPARADOR, OPERADOR;
-terminal ERROR, PACKAGE, IMPORT, WHILE;
+terminal ERROR, PACKAGE, IMPORT, WHILE, LISTABOOLEANOS, NEGADO;
+terminal INC_DEC, OPERADORSIMPLE, OPERADORCOMBINADO,IF;
 
 
 non terminal globals_opt, functions_opt, begin, globals_otp;
@@ -38,19 +39,17 @@ non terminal type_char, type_int, type_long, type_short;
 non terminal function_char, function_int, function_long, function_short, function_void;
 non terminal parametros_otp, parametros, parametro;
 non terminal cuerpo_otp, cuerpo_function, declaraciones_otp, declaracion_otp, declaraciones, declaracion;
-non terminal type, sentencias_otp, sentencia, while, condicion, next;
+non terminal type, sentencias_otp, sentencia, while, for, condicion, next;
 non terminal while_opt, declaraciones_pri, sentencias, list_globals, list_functions;
 non terminal list_declaraciones, list_sentencias, cuerpo_sentencia;
-non terminal declaraciones_while, list_sentencias_while;
+non terminal declaraciones_while, list_sentencias_while, booleano, type_Cond,operacion;
+non terminal list_sentencias_estruct, declaraciones_estruct, first_for, if;
 
 precedence left INT, LONG, CHAR, SHORT, PYCOMA;
 precedence left LLAVEDER, PYCOMA;
 
 start with begin;
 
-next ::= LLAVEDER
-        | PYCOMA
-        ;
 
 begin ::= globals | list_functions;
 
@@ -102,11 +101,11 @@ parametro ::= CHAR IDENTIFICADOR
             | SHORT IDENTIFICADOR
             ;
 
-cuerpo_sentencia ::= declaraciones_while | list_sentencias_while;
+cuerpo_sentencia ::= declaraciones_estruct | list_sentencias_estruct;
 
-declaraciones_while ::= list_declaraciones list_sentencias_while;
+declaraciones_estruct ::= list_declaraciones list_sentencias_estruct;
 
-list_sentencias_while ::= list_sentencias | ;
+list_sentencias_estruct ::= list_sentencias | ;
 
 cuerpo_function ::= declaraciones | list_sentencias
             ;
@@ -135,14 +134,48 @@ list_sentencias ::= sentencia
                 ;
 
 sentencia ::= while
-            ;
+              |for
+              |if
+              |error LLAVEDER
+              ;
 
 while ::= WHILE PARIZQ condicion PARDER LLAVEIZQ cuerpo_sentencia LLAVEDER {: System.out.println("Siii, while"); :}
-        | error LLAVEDER
         ;
-                       
+        
+for ::=   FOR PARIZQ first_for PYCOMA condicion PYCOMA operacion 
+          PARDER LLAVEIZQ cuerpo_sentencia LLAVEDER  {: System.out.println("Siii, for"); :}
+          | FOR PARIZQ IDENTIFICADOR IGUAL LITERALDECIMAL PYCOMA condicion PYCOMA operacion 
+          PARDER LLAVEIZQ cuerpo_sentencia LLAVEDER  {: System.out.println("Siii, for"); :}
+          ;
+
+first_for ::= IDENTIFICADOR IGUAL LITERALDECIMAL
+            | IDENTIFICADOR
+            ;
+
+if ::= IF PARIZQ condicion PARDER LLAVEIZQ cuerpo_sentencia LLAVEDER {: System.out.println("Siii, IIIF"); :}
+        ;
+
+
 condicion ::= LITERALBOOLEANO
-                ;
+            | NEGADO LITERALBOOLEANO
+            | type_Cond LISTABOOLEANOS type_Cond
+            ;
+
+type_Cond::= LITERALDECIMAL
+            | LITERALOCTAL
+            | LITERALHEXADECIMAL
+            | booleano
+            | LITERALSTRING
+            | IDENTIFICADOR
+            | LITERALPTOFLOTANTE
+            | COMILLA IDENTIFICADOR COMILLA
+            ;
+
+operacion::= IDENTIFICADOR INC_DEC
+            | IDENTIFICADOR OPERADORCOMBINADO LITERALDECIMAL
+            | IDENTIFICADOR IGUAL IDENTIFICADOR OPERADORSIMPLE LITERALDECIMAL
+            ;
+
 
 type_char ::= CHAR IDENTIFICADOR IGUAL COMILLA IDENTIFICADOR COMILLA PYCOMA {: System.out.println("si, global char"); :}
          

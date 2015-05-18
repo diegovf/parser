@@ -19,6 +19,7 @@ import java.util.LinkedList;
  */
 public class Interfaz extends javax.swing.JFrame {
 
+    
     /**
      * Creates new form Interfaz
      */
@@ -27,6 +28,7 @@ public class Interfaz extends javax.swing.JFrame {
     int x = 0;
     int y = 0;
     public Interfaz() {
+     
         initComponents();
     }
 
