@@ -46,6 +46,7 @@ non terminal declaraciones_while, list_sentencias_while, booleano, type_Cond,ope
 non terminal list_sentencias_estruct, declaraciones_estruct, first_for, if, switch;
 non terminal case_body, case_expression, cases, default, case, consts;
 non terminal ifelse, ifelse_aux, else, expression;
+non terminal type_declaracion, const, identificadores;
 
 precedence left INT, LONG, CHAR, SHORT, PYCOMA;
 precedence left LLAVEDER, PYCOMA;
@@ -124,15 +125,8 @@ declaracion ::= type_char
                 | type_long
                 | type_short
                 | IDENTIFICADOR IGUAL type PYCOMA
-                | CONST IDENTIFICADOR IGUAL LITERALDECIMAL PYCOMA
-                | consts
                 | error PYCOMA
                 ;
-
-consts ::= CONST type_char
-            | CONST type_short
-            | CONST type_long
-            ;
 
 
 type ::= LITERALDECIMAL
@@ -221,16 +215,19 @@ operacion::= IDENTIFICADOR INC_DEC
             ;
 
 
-type_char ::= CHAR IDENTIFICADOR IGUAL COMILLA IDENTIFICADOR COMILLA PYCOMA {: System.out.println("si, global char"); :}
+type_char ::= CHAR identificadores IGUAL COMILLA IDENTIFICADOR COMILLA PYCOMA {: System.out.println("si, global char"); :}
          
             ;
-type_int ::= INT IDENTIFICADOR IGUAL LITERALDECIMAL PYCOMA {: System.out.println("si, global int"); :}
+type_int ::= INT identificadores IGUAL LITERALDECIMAL PYCOMA {: System.out.println("si, global int"); :}
             
             ;
-type_long ::= LONG IDENTIFICADOR IGUAL LITERALPTOFLOTANTE PYCOMA {: System.out.println("si, global long"); :}
+type_long ::= LONG identificadores IGUAL LITERALPTOFLOTANTE PYCOMA {: System.out.println("si, global long"); :}
             
             ;
-type_short ::= SHORT IDENTIFICADOR IGUAL LITERALDECIMAL PYCOMA {: System.out.println("si, global short"); :}
+type_short ::= SHORT identificadores IGUAL LITERALDECIMAL PYCOMA {: System.out.println("si, global short"); :}
       
             ;
-                
+
+identificadores ::= IDENTIFICADOR
+                | identificadores COMA IDENTIFICADOR
+                ;
