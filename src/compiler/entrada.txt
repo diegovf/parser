@@ -9,7 +9,7 @@ char main(int hola, char hola){
     x = 's';
     int x = 12;
 
-    while (true) {}
+    while as(true) {}
     while(false){}
 }
 
