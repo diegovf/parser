@@ -1,6 +1,6 @@
 
 int a = 1;
-int a = q;
+char a = 'd';
 int a = 1;
 
 char main(int hola, char hola){
@@ -10,10 +10,18 @@ char main(int hola, char hola){
 int main(int a, int b){ 
     int x = q;
     int s = 2;
+
     while(true){
-        while(true){}
+        int a = a;
+        int a = 1;
+        while(true){
+            char a = 'q';
+            while(true){}
+        }
     }
-    while(true){}
+    while(true){
+    
+    }
 }
 
 char main(char a){ 

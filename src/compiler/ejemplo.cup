@@ -37,10 +37,11 @@ non terminal globals, global, functions, function;
 non terminal type_char, type_int, type_long, type_short;
 non terminal function_char, function_int, function_long, function_short, function_void;
 non terminal parametros_otp, parametros, parametro;
-non terminal cuerpo_otp, cuerpo, declaraciones_otp, declaracion_otp, declaraciones, declaracion;
+non terminal cuerpo_otp, cuerpo_function, declaraciones_otp, declaracion_otp, declaraciones, declaracion;
 non terminal type, sentencias_otp, sentencia, while, condicion, next;
 non terminal while_opt, declaraciones_pri, sentencias, list_globals, list_functions;
-non terminal list_declaraciones, list_sentencias;
+non terminal list_declaraciones, list_sentencias, cuerpo_sentencia;
+non terminal declaraciones_while, list_sentencias_while;
 
 precedence left INT, LONG, CHAR, SHORT, PYCOMA;
 precedence left LLAVEDER, PYCOMA;
@@ -80,7 +81,7 @@ function ::= function_char
 
 function_char ::= CHAR IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ LLAVEDER {: System.out.println("si, function char"); :}
             ;
-function_int ::= INT IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ cuerpo LLAVEDER {: System.out.println("si, function int"); :}
+function_int ::= INT IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ cuerpo_function LLAVEDER {: System.out.println("si, function int"); :}
             ;
 function_long ::= LONG IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ  LLAVEDER {: System.out.println("si, function long"); :}
             ;
@@ -101,7 +102,13 @@ parametro ::= CHAR IDENTIFICADOR
             | SHORT IDENTIFICADOR
             ;
 
-cuerpo ::= declaraciones | list_sentencias
+cuerpo_sentencia ::= declaraciones_while | list_sentencias_while;
+
+declaraciones_while ::= list_declaraciones list_sentencias_while;
+
+list_sentencias_while ::= list_sentencias | ;
+
+cuerpo_function ::= declaraciones | list_sentencias
             ;
 
 declaraciones ::= list_declaraciones list_sentencias;
@@ -130,7 +137,7 @@ list_sentencias ::= sentencia
 sentencia ::= while
             ;
 
-while ::= WHILE PARIZQ condicion PARDER LLAVEIZQ list_sentencias LLAVEDER {: System.out.println("Siii, while"); :}
+while ::= WHILE PARIZQ condicion PARDER LLAVEIZQ cuerpo_sentencia LLAVEDER {: System.out.println("Siii, while"); :}
         | error LLAVEDER
         ;
                        
