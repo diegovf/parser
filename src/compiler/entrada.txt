@@ -1,5 +1,5 @@
-int a = 1;
-char a = 'd';
+int a, b, c = 1;
+char a, b = 'd';
 int a = 1;
 
 char main(int hola, char hola){
@@ -7,8 +7,8 @@ char main(int hola, char hola){
 }
 
 int main(int a, int b){ 
-    int x = 3;
-    int s = 2;
+    int x, s, d = q;
+    int s, h = 2;
 
     if (x == 0)
     {
@@ -25,9 +25,18 @@ int main(int a, int b){
         while(true){
 
         }
+    } else {
+
+    }
+    if (true) {
+        ;
+    } else {
+        while(true){while(true){;}}
     }
 }
 
-char main(char a){ 
-    
+char main(char a){
+    do {
+        return;
+    } while (true);
 }

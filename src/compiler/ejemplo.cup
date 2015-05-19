@@ -25,7 +25,7 @@ terminal String DIFERENTE, MAYORIGUAL, MENORIGUAL, MENOSNUM, MENOSUNO, TERMINAL;
 terminal String MASNUM, MASUNO, IGUAL, MAYOR, MENOR, PYCOMA;
 terminal String COMA, PARIZQ, PARDER, LLAVEIZQ, LLAVEDER, FOR, INT, ID;
 terminal integer NUMERO, LITERALDECIMAL; 
-terminal CHAR, LONG, SHORT, COMILLA;
+terminal CHAR, LONG, SHORT, COMILLA, DO;
 terminal PCOMA, VOID, CONST, ELSE, RETURN;
 terminal LITERALNULL, LITERALPTOFLOTANTE, LITERALSTRING, LITERALOCTAL, LITERALBOOLEANO;
 terminal LITERALHEXADECIMAL, RESERVADA, IDENTIFICADOR, SEPARADOR, OPERADOR;
@@ -45,7 +45,7 @@ non terminal list_declaraciones, list_sentencias, cuerpo_sentencia;
 non terminal declaraciones_while, list_sentencias_while, booleano, type_Cond,operacion;
 non terminal list_sentencias_estruct, declaraciones_estruct, first_for, if, switch;
 non terminal case_body, case_expression, cases, default, case, consts;
-non terminal ifelse, ifelse_aux, else, expression, return;
+non terminal ifelse, ifelse_aux, else, expression, return, dowhile;
 non terminal type_declaracion, const, identificadores, case_break;
 
 precedence left INT, LONG, CHAR, SHORT, PYCOMA;
@@ -147,6 +147,7 @@ sentencia ::= while
               | for 
               | ifelse
               | switch
+              | dowhile
               | error LLAVEDER
               ;
 
@@ -193,6 +194,8 @@ if ::= IF PARIZQ condicion PARDER LLAVEIZQ cuerpo_sentencia LLAVEDER {: System.o
 else ::= ELSE LLAVEIZQ cuerpo_sentencia LLAVEDER {: System.out.println("Siii, ifelse"); :}
         ;
 
+dowhile ::= DO LLAVEIZQ cuerpo_sentencia LLAVEDER WHILE PARIZQ condicion PARDER PYCOMA {: System.out.println("Siii, DoWhile"); :}
+        ;
 
 condicion ::= LITERALBOOLEANO
             | NEGADO LITERALBOOLEANO
