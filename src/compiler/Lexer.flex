@@ -132,6 +132,7 @@ OPERADORSIMPLE = "+"|"-"|"*"|"/"|"%"
     "default" {return new Symbol(sym.DEFAULT, yychar, yyline, yytext());}
     ":"       {return new Symbol(sym.DOSPUNTOS, yychar, yyline, yytext());}
     "const"    {return new Symbol(sym.CONST, yychar, yyline, yytext());}
+    "return"   {return new Symbol(sym.RETURN, yychar, yyline, yytext());}
     
   /* OPERADORES SIMPLE */
   {OPERADORSIMPLE}              {return new Symbol(sym.OPERADORCOMBINADO, yychar, yyline, yytext());}
@@ -152,7 +153,7 @@ OPERADORSIMPLE = "+"|"-"|"*"|"/"|"%"
   
   ";"                            {return new Symbol(sym.PYCOMA, yychar, yyline, yytext());}
   ","                            {return new Symbol(sym.COMA, yychar, yyline, yytext());}
-    "="                            {return new Symbol(sym.IGUAL, yychar, yyline, yytext());}
+    "="                          {return new Symbol(sym.IGUAL, yychar, yyline, yytext());}
 
   /*LITERAL NULL*/
   "null"                         {return new Symbol(sym.LITERALNULL, yychar, yyline, yytext());}
