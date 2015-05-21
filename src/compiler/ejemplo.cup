@@ -83,15 +83,15 @@ function ::= function_char
             ;
 
 function_char ::= CHAR IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ cuerpo_function return LLAVEDER {: System.out.println("si, function char"); :}
-                | CHAR IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ return LLAVEDER {: System.out.println("si, function char"); :}
+                | CHAR IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ cuerpo_function LLAVEDER {: System.out.println("si, function char"); :}
             ;
-function_int ::= INT IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ cuerpo_function LLAVEDER {: System.out.println("si, function int"); :}
+function_int ::= INT IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ cuerpo_function return LLAVEDER {: System.out.println("si, function int"); :}
             ;
-function_long ::= LONG IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ cuerpo_function LLAVEDER {: System.out.println("si, function long"); :}
+function_long ::= LONG IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ cuerpo_function return LLAVEDER {: System.out.println("si, function long"); :}
             ;
-function_short ::= SHORT IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ cuerpo_function LLAVEDER {: System.out.println("si, function short"); :}
+function_short ::= SHORT IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ cuerpo_function return LLAVEDER {: System.out.println("si, function short"); :}
             ;
-function_short ::= VOID IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ cuerpo_function LLAVEDER {: System.out.println("si, function void"); :}
+function_short ::= VOID IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ cuerpo_function return LLAVEDER {: System.out.println("si, function void"); :}
             ;
 
 return ::= RETURN PYCOMA
@@ -110,11 +110,7 @@ parametro ::= CHAR IDENTIFICADOR
             | SHORT IDENTIFICADOR
             ;
 
-cuerpo_sentencia ::= declaraciones_estruct | list_sentencias_estruct;
-
-declaraciones_estruct ::= list_declaraciones list_sentencias_estruct;
-
-list_sentencias_estruct ::= list_sentencias | ;
+cuerpo_sentencia ::= list_sentencias | ;
 
 cuerpo_function ::= declaraciones | list_sentencias
             ;
