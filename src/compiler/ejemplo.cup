@@ -26,7 +26,7 @@ terminal String MASNUM, MASUNO, IGUAL, MAYOR, MENOR, PYCOMA;
 terminal String COMA, PARIZQ, PARDER, LLAVEIZQ, LLAVEDER, FOR, INT, ID;
 terminal integer NUMERO, LITERALDECIMAL; 
 terminal CHAR, LONG, SHORT, COMILLA;
-terminal PCOMA, VOID, CONST, ELSE;
+terminal PCOMA, VOID, CONST, ELSE,READ,WRITE;
 terminal LITERALNULL, LITERALPTOFLOTANTE, LITERALSTRING, LITERALOCTAL, LITERALBOOLEANO;
 terminal LITERALHEXADECIMAL, RESERVADA, IDENTIFICADOR, SEPARADOR, OPERADOR;
 terminal ERROR, PACKAGE, IMPORT, WHILE, LISTABOOLEANOS, NEGADO, BREAK, RETURN;
@@ -34,8 +34,8 @@ terminal INC_DEC, OPERADORSIMPLE, OPERADORCOMBINADO,IF, SWITCH, CASE, DEFAULT, D
 
 
 non terminal globals_opt, functions_opt, begin, globals_otp;
-non terminal globals, global, functions, function;
-non terminal type_char, type_int, type_long, type_short;
+non terminal globals, global, functions, function, return_char, return_int, return_long;
+non terminal type_char, type_int, type_long, type_shor, function_read, function_writet;
 non terminal function_char, function_int, function_long, function_short, function_void;
 non terminal parametros_otp, parametros, parametro;
 non terminal cuerpo_otp, cuerpo_function, declaraciones_otp, declaracion_otp, declaraciones, declaracion;
@@ -44,9 +44,9 @@ non terminal while_opt, declaraciones_pri, sentencias, list_globals, list_functi
 non terminal list_declaraciones, list_sentencias, cuerpo_sentencia;
 non terminal declaraciones_while, list_sentencias_while, booleano, type_Cond,operacion;
 non terminal list_sentencias_estruct, declaraciones_estruct, first_for, if, switch;
-non terminal case_body, case_expression, cases, default, case, consts;
-non terminal ifelse, ifelse_aux, else, expression;
-non terminal type_declaracion, const, identificadores;
+non terminal case_body, case_expression, cases, default, case, consts, return_sentencia;
+non terminal ifelse, ifelse_aux, else, expression, type_short, return_otro, read, write;
+non terminal type_declaracion, const, identificadores, function_write, parametros_mlm;
 
 precedence left INT, LONG, CHAR, SHORT, PYCOMA;
 precedence left LLAVEDER, PYCOMA;
@@ -79,20 +79,31 @@ function ::= function_char
             | function_long
             | function_short
             | function_void
+            | function_read
+            | function_write
             | error LLAVEDER
             ;
 
 function_char ::= CHAR IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ cuerpo_function RETURN return_char PYCOMA LLAVEDER {: System.out.println("si, function char"); :}
-            ;
-function_int ::= INT IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ cuerpo_function RETURN return_int PYCOMA LLAVEDER {: System.out.println("si, function int"); :}
-            ;
-function_long ::= LONG IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ  cuerpo_function RETURN return_long PYCOMA LLAVEDER {: System.out.println("si, function long"); :}
-            ;
-function_short ::= SHORT IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ cuerpo_function RETURN return_int PYCOMA LLAVEDER {: System.out.println("si, function short"); :}
-            ;
-function_void ::= VOID IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ cuerpo_function LLAVEDER {: System.out.println("si, function void"); :}
+            | CHAR IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ RETURN return_char PYCOMA LLAVEDER
             ;
 
+function_int ::= INT IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ cuerpo_function RETURN return_int PYCOMA LLAVEDER {: System.out.println("si, function int"); :}
+            | INT IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ RETURN return_int PYCOMA LLAVEDER
+            ;
+
+function_long ::= LONG IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ  cuerpo_function RETURN return_long PYCOMA LLAVEDER {: System.out.println("si, function long"); :}
+            LONG IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ RETURN return_long PYCOMA LLAVEDER
+            ;
+
+function_short ::= SHORT IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ cuerpo_function RETURN return_int PYCOMA LLAVEDER {: System.out.println("si, function short"); :}
+            SHORT IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ RETURN return_int PYCOMA LLAVEDER
+            ;
+
+function_void ::= VOID IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ cuerpo_function LLAVEDER {: System.out.println("si, function void"); :}
+            ;
+            
+            
 return_char ::= IDENTIFICADOR
             | COMILLA IDENTIFICADOR COMILLA
             ;
@@ -104,6 +115,8 @@ return_int ::= IDENTIFICADOR
 return_long ::= IDENTIFICADOR
             | LITERALPTOFLOTANTE 
             ;
+
+parametros_mlm ::= parametros;
 
 parametros_otp ::= parametros|;
 
@@ -155,14 +168,11 @@ sentencia ::= while
               |for
               |if
               |switch
-              |return_otro
+              |read
+              |write
               |error LLAVEDER
               ;
 
-return_otro ::= RETURN IDENTIFICADOR PYCOMA
-            | RETURN LITERALDECIMAL PYCOMA
-            | RETURN COMILLA CHAR COMILLA PYCOMA
-            ;
 
 return_sentencia ::= RETURN IDENTIFICADOR PYCOMA
             | RETURN LITERALDECIMAL PYCOMA
@@ -176,8 +186,14 @@ while ::= WHILE PARIZQ condicion PARDER LLAVEIZQ cuerpo_sentencia return_sentenc
 for ::=   FOR PARIZQ first_for PYCOMA condicion PYCOMA operacion 
           PARDER LLAVEIZQ cuerpo_sentencia return_sentencia LLAVEDER  {: System.out.println("Siii, for"); :}
           | FOR PARIZQ IDENTIFICADOR IGUAL LITERALDECIMAL PYCOMA condicion PYCOMA operacion 
-          PARDER LLAVEIZQ cuerpo_sentencia LLAVEDER  {: System.out.println("Siii, for"); :}          
+          PARDER LLAVEIZQ cuerpo_sentencia return_sentencia LLAVEDER  {: System.out.println("Siii, for"); :}          
           ;
+
+read ::= READ PARIZQ parametros_otp PARDER PYCOMA{: System.out.println("si, function read"); :}
+        ;
+
+write ::=  WRITE PARIZQ parametros_mlm PARDER PYCOMA{: System.out.println("si, function write"); :}
+        ;
 
 switch ::= SWITCH PARIZQ IDENTIFICADOR PARDER LLAVEIZQ LLAVEDER
         ;

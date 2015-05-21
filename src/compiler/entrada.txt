@@ -25,6 +25,14 @@ int main(int a, int b){
     return 0;
 }
 
+
+int main(int hola) {
+    read();
+    write(int x);
+    return 0;
+}
+
+
 char main(char a){ 
    while(true){
 
