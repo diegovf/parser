@@ -1,10 +1,10 @@
-int a = 1;
-char a = 'd';
+int a, b, c = 1;
+char a, b = 'd';
 int a = 1;
 
 int main(int a, int b){ 
-    int x = 3;
-    int s = 2;
+    int x, s, d = q;
+    int s, h = 2;
 
     if (x == 0)
     {
@@ -21,21 +21,19 @@ int main(int a, int b){
         while(true){
 
         }
+    } else {
+
+    }
+    if (true) {
+        ;
+    } else {
+        while(true){while(true){;}}
     }
     return 0;
 }
 
-
-int main(int hola) {
-    read();
-    write(int x);
-    return 0;
-}
-
-
-char main(char a){ 
-   while(true){
-
-        }
-   return 'a'; 
+char main(char a){
+    do {
+        return;
+    } while (true);
 }

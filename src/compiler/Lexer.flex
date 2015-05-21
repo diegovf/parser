@@ -125,6 +125,7 @@ OPERADORSIMPLE = "+"|"-"|"*"|"/"|"%"
     "import"   {return new Symbol(sym.IMPORT, yychar, yyline, yytext());}
     "while"   {return new Symbol(sym.WHILE, yychar, yyline, yytext());}
     "if"      {return new Symbol(sym.IF, yychar, yyline, yytext());}
+    "else"      {return new Symbol(sym.ELSE, yychar, yyline, yytext());}
     "'"   {return new Symbol(sym.COMILLA, yychar, yyline, yytext());}
     "!"   {return new Symbol(sym.NEGADO, yychar, yyline, yytext());}
     "switch" {return new Symbol(sym.SWITCH, yychar, yyline, yytext());}
@@ -135,6 +136,9 @@ OPERADORSIMPLE = "+"|"-"|"*"|"/"|"%"
     "return"   {return new Symbol(sym.RETURN, yychar, yyline, yytext());}
     "read"     {return new Symbol(sym.READ, yychar, yyline, yytext());}
     "write"    {return new Symbol(sym.WRITE, yychar, yyline, yytext());}
+    "break"    {return new Symbol(sym.BREAK, yychar, yyline, yytext());}
+    "return"    {return new Symbol(sym.RETURN, yychar, yyline, yytext());}
+    "do"    {return new Symbol(sym.DO, yychar, yyline, yytext());}
     
   /* OPERADORES SIMPLE */
   {OPERADORSIMPLE}              {return new Symbol(sym.OPERADORCOMBINADO, yychar, yyline, yytext());}

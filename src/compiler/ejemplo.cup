@@ -25,7 +25,7 @@ terminal String DIFERENTE, MAYORIGUAL, MENORIGUAL, MENOSNUM, MENOSUNO, TERMINAL;
 terminal String MASNUM, MASUNO, IGUAL, MAYOR, MENOR, PYCOMA;
 terminal String COMA, PARIZQ, PARDER, LLAVEIZQ, LLAVEDER, FOR, INT, ID;
 terminal integer NUMERO, LITERALDECIMAL; 
-terminal CHAR, LONG, SHORT, COMILLA;
+terminal CHAR, LONG, SHORT, COMILLA,DO;
 terminal PCOMA, VOID, CONST, ELSE,READ,WRITE;
 terminal LITERALNULL, LITERALPTOFLOTANTE, LITERALSTRING, LITERALOCTAL, LITERALBOOLEANO;
 terminal LITERALHEXADECIMAL, RESERVADA, IDENTIFICADOR, SEPARADOR, OPERADOR;
@@ -37,7 +37,7 @@ non terminal globals_opt, functions_opt, begin, globals_otp;
 non terminal globals, global, functions, function, return_char, return_int, return_long;
 non terminal type_char, type_int, type_long, type_shor, function_read, function_writet;
 non terminal function_char, function_int, function_long, function_short, function_void;
-non terminal parametros_otp, parametros, parametro;
+non terminal parametros_otp, parametros, parametro,return, dowhile;
 non terminal cuerpo_otp, cuerpo_function, declaraciones_otp, declaracion_otp, declaraciones, declaracion;
 non terminal type, sentencias_otp, sentencia, while, for, condicion, next;
 non terminal while_opt, declaraciones_pri, sentencias, list_globals, list_functions;
@@ -47,6 +47,7 @@ non terminal list_sentencias_estruct, declaraciones_estruct, first_for, if, swit
 non terminal case_body, case_expression, cases, default, case, consts, return_sentencia;
 non terminal ifelse, ifelse_aux, else, expression, type_short, return_otro, read, write;
 non terminal type_declaracion, const, identificadores, function_write, parametros_mlm;
+
 
 precedence left INT, LONG, CHAR, SHORT, PYCOMA;
 precedence left LLAVEDER, PYCOMA;
@@ -92,13 +93,14 @@ function_int ::= INT IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ cuerpo_
             | INT IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ RETURN return_int PYCOMA LLAVEDER
             ;
 
+
 function_long ::= LONG IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ  cuerpo_function RETURN return_long PYCOMA LLAVEDER {: System.out.println("si, function long"); :}
             LONG IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ RETURN return_long PYCOMA LLAVEDER
             ;
 
 function_short ::= SHORT IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ cuerpo_function RETURN return_int PYCOMA LLAVEDER {: System.out.println("si, function short"); :}
             SHORT IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ RETURN return_int PYCOMA LLAVEDER
-            ;
+               ;
 
 function_void ::= VOID IDENTIFICADOR PARIZQ parametros_otp PARDER LLAVEIZQ cuerpo_function LLAVEDER {: System.out.println("si, function void"); :}
             ;
@@ -117,6 +119,9 @@ return_long ::= IDENTIFICADOR
             ;
 
 parametros_mlm ::= parametros;
+
+return ::= RETURN PYCOMA
+        |;
 
 parametros_otp ::= parametros|;
 
@@ -165,14 +170,12 @@ list_sentencias ::= sentencia
                 ;
 
 sentencia ::= while
-              |for
-              |if
-              |switch
-              |read
-              |write
-              |error LLAVEDER
+              | for 
+              | ifelse
+              | switch
+              | dowhile
+              | error LLAVEDER
               ;
-
 
 return_sentencia ::= RETURN IDENTIFICADOR PYCOMA
             | RETURN LITERALDECIMAL PYCOMA
@@ -180,7 +183,9 @@ return_sentencia ::= RETURN IDENTIFICADOR PYCOMA
             |
             ;
 
-while ::= WHILE PARIZQ condicion PARDER LLAVEIZQ cuerpo_sentencia return_sentencia LLAVEDER {: System.out.println("Siii, while"); :}
+
+while ::= WHILE PARIZQ condicion PARDER LLAVEIZQ cuerpo_sentencia LLAVEDER {: System.out.println("Siii, while"); :}
+        | WHILE PARIZQ condicion PARDER LLAVEIZQ cuerpo_sentencia RETURN LLAVEDER {: System.out.println("Siii, while"); :}
         ;
         
 for ::=   FOR PARIZQ first_for PYCOMA condicion PYCOMA operacion 
@@ -189,36 +194,33 @@ for ::=   FOR PARIZQ first_for PYCOMA condicion PYCOMA operacion
           PARDER LLAVEIZQ cuerpo_sentencia return_sentencia LLAVEDER  {: System.out.println("Siii, for"); :}          
           ;
 
+
 read ::= READ PARIZQ parametros_otp PARDER PYCOMA{: System.out.println("si, function read"); :}
         ;
 
 write ::=  WRITE PARIZQ parametros_mlm PARDER PYCOMA{: System.out.println("si, function write"); :}
         ;
 
-switch ::= SWITCH PARIZQ IDENTIFICADOR PARDER LLAVEIZQ LLAVEDER
+
+switch ::= SWITCH PARIZQ IDENTIFICADOR PARDER LLAVEIZQ cases default LLAVEDER {: System.out.println("si, Switch"); :}
+
         ;
 
 expression ::= LITERALDECIMAL
             | LITERALOCTAL
             | LITERALHEXADECIMAL
             ;
+
 cases::= case
         | cases case
         ;
 
-case::= CASE LITERALDECIMAL DOSPUNTOS case_expression
+default ::= DEFAULT DOSPUNTOS cuerpo_sentencia PYCOMA
+        |;
+
+case::= CASE LITERALDECIMAL DOSPUNTOS cuerpo_sentencia PYCOMA
+        | CASE LITERALDECIMAL DOSPUNTOS cuerpo_sentencia BREAK PYCOMA
         ;
-
-
-case_expression::= cuerpo_sentencia BREAK
-                 | cuerpo_sentencia
-                 | BREAK           
-                 ;
-
-default::= DEFAULT cuerpo_sentencia BREAK
-            | DEFAULT BREAK
-            | DEFAULT
-            ;
 
 first_for ::= IDENTIFICADOR IGUAL LITERALDECIMAL
             | IDENTIFICADOR
@@ -234,6 +236,8 @@ if ::= IF PARIZQ condicion PARDER LLAVEIZQ cuerpo_sentencia LLAVEDER {: System.o
 else ::= ELSE LLAVEIZQ cuerpo_sentencia LLAVEDER {: System.out.println("Siii, ifelse"); :}
         ;
 
+dowhile ::= DO LLAVEIZQ cuerpo_sentencia LLAVEDER WHILE PARIZQ condicion PARDER PYCOMA {: System.out.println("Siii, DoWhile"); :}
+        ;
 
 condicion ::= LITERALBOOLEANO
             | NEGADO LITERALBOOLEANO
