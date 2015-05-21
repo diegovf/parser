@@ -136,9 +136,7 @@ parametro ::= CHAR IDENTIFICADOR
             | SHORT IDENTIFICADOR
             ;
 
-cuerpo_sentencia ::= declaraciones_estruct | list_sentencias_estruct;
-
-declaraciones_estruct ::= list_declaraciones list_sentencias_estruct;
+cuerpo_sentencia ::= list_sentencias_estruct | primitivas;
 
 list_sentencias_estruct ::= list_sentencias | ;
 
@@ -166,11 +164,14 @@ type ::= LITERALDECIMAL
         ;
 
 list_sentencias ::= sentencia
-                | list_sentencias sentencia   
+                | list_sentencias sentencia  
+                | primitivas
+                | list_sentencias primitivas
                 ;
 
 primitivas ::= read
               | write
+              | error PYCOMA
               ;
 
 sentencia ::= while
@@ -178,7 +179,6 @@ sentencia ::= while
               | ifelse
               | switch
               | dowhile
-              | primitivas
               | error LLAVEDER
               ;
 

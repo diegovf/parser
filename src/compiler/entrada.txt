@@ -4,8 +4,10 @@ int a = 1;
 
 int main(int a, int b){ 
    
-    while(true) {}
-    write();
+    while(true) {
+    write(int a);
+    }
+    read();
     while(true){}
    return a;
 }
