@@ -3,37 +3,9 @@ char a, b = 'd';
 int a = 1;
 
 int main(int a, int b){ 
-    int x, s, d = q;
-    int s, h = 2;
-
-    if (x == 0)
-    {
-        for (j=0; j<tam; j++)
-        {
-            i= 0;
-            for (i; i<tam; i++){
-                j = 0;
-                while(true){
-
-                }
-             }
-        }
-        while(true){
-
-        }
-    } else {
-
-    }
-    if (true) {
-        ;
-    } else {
-        while(true){while(true){;}}
-    }
-    return 0;
-}
-
-char main(char a){
-    do {
-        return;
-    } while (true);
+   
+    while(true) {}
+    write();
+    while(true){}
+   return a;
 }
