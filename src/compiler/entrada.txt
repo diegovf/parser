@@ -1,13 +1,13 @@
 int a, b, c = 1;
 char a, b = 'd';
-int a = 1;
 
-int main(int a, int b){ 
-   
-    while(true) {
-    write(int a);
-    }
+
+
+int main(int a) {
+    int a = b + c;
+    
+    write(a+1+c);
     read();
-    while(true){}
-   return a;
+    
 }
+

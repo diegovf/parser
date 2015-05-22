@@ -141,7 +141,7 @@ OPERADORSIMPLE = "+"|"-"|"*"|"/"|"%"
     "do"    {return new Symbol(sym.DO, yychar, yyline, yytext());}
     
   /* OPERADORES SIMPLE */
-  {OPERADORSIMPLE}              {return new Symbol(sym.OPERADORCOMBINADO, yychar, yyline, yytext());}
+  {OPERADORSIMPLE}              {return new Symbol(sym.OPERADORSIMPLE, yychar, yyline, yytext());}
 
   /* OPERADORES COMBINADOS */
   {OPERADORCOMBINADO}           {return new Symbol(sym.OPERADORCOMBINADO, yychar, yyline, yytext());}
