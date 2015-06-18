@@ -2,6 +2,7 @@
 
 package compiler;
 
+import java.io.Reader;
 import java_cup.runtime.Symbol;
 
 /**
@@ -653,6 +654,11 @@ public class Yylex implements java_cup.runtime.Scanner {
   private int zzFinalHighSurrogate = 0;
 
   /* user code: */
+        private TablaSimbolos tabla;
+        public Yylex(Reader in, TablaSimbolos t){
+            this(in);
+            this.tabla = t;
+        }
     public String lexeme;
     public int linea;
     public int columna;

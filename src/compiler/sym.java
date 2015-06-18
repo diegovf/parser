@@ -8,66 +8,67 @@ package compiler;
 /** CUP generated class containing symbol constants. */
 public class sym {
   /* terminals */
-  public static final int INC_DEC = 53;
-  public static final int DOSPUNTOS = 60;
+  public static final int INC_DEC = 54;
+  public static final int DOSPUNTOS = 61;
   public static final int NUMERO = 22;
-  public static final int LITERALNULL = 35;
+  public static final int LITERALNULL = 36;
   public static final int SHORT = 26;
-  public static final int LITERALPTOFLOTANTE = 36;
-  public static final int CONST = 31;
+  public static final int LITERALPTOFLOTANTE = 37;
+  public static final int CONST = 32;
   public static final int CHAR = 24;
   public static final int LITERALDECIMAL = 23;
-  public static final int CASE = 58;
+  public static final int CASE = 59;
   public static final int DIFERENTE = 2;
-  public static final int OPERADORSIMPLE = 54;
+  public static final int CONTINUE = 29;
+  public static final int OPERADORSIMPLE = 55;
   public static final int LLAVEDER = 18;
   public static final int INT = 20;
-  public static final int SEPARADOR = 43;
+  public static final int SEPARADOR = 44;
   public static final int FOR = 19;
-  public static final int WRITE = 34;
-  public static final int IDENTIFICADOR = 42;
+  public static final int WRITE = 35;
+  public static final int IDENTIFICADOR = 43;
   public static final int MENORIGUAL = 4;
-  public static final int LITERALBOOLEANO = 39;
+  public static final int LITERALBOOLEANO = 40;
   public static final int IGUAL = 10;
   public static final int MENOSNUM = 5;
-  public static final int OPERADORCOMBINADO = 55;
-  public static final int LISTABOOLEANOS = 49;
-  public static final int IF = 56;
+  public static final int OPERADORCOMBINADO = 56;
+  public static final int LISTABOOLEANOS = 50;
+  public static final int IF = 57;
   public static final int MASNUM = 8;
   public static final int ID = 21;
   public static final int MAYORIGUAL = 3;
   public static final int PYCOMA = 13;
   public static final int EOF = 0;
   public static final int PARIZQ = 15;
-  public static final int RETURN = 52;
+  public static final int RETURN = 53;
   public static final int error = 1;
   public static final int COMILLA = 27;
   public static final int COMA = 14;
   public static final int MENOR = 12;
-  public static final int BREAK = 51;
-  public static final int RESERVADA = 41;
-  public static final int LITERALOCTAL = 38;
-  public static final int VOID = 30;
-  public static final int ERROR = 45;
-  public static final int SWITCH = 57;
-  public static final int PCOMA = 29;
-  public static final int IMPORT = 47;
+  public static final int BREAK = 52;
+  public static final int RESERVADA = 42;
+  public static final int LITERALOCTAL = 39;
+  public static final int VOID = 31;
+  public static final int ERROR = 46;
+  public static final int SWITCH = 58;
+  public static final int PCOMA = 30;
+  public static final int IMPORT = 48;
   public static final int MAYOR = 11;
-  public static final int LITERALSTRING = 37;
-  public static final int ELSE = 32;
-  public static final int OPERADOR = 44;
-  public static final int READ = 33;
-  public static final int PACKAGE = 46;
-  public static final int WHILE = 48;
+  public static final int LITERALSTRING = 38;
+  public static final int ELSE = 33;
+  public static final int OPERADOR = 45;
+  public static final int READ = 34;
+  public static final int PACKAGE = 47;
+  public static final int WHILE = 49;
   public static final int LLAVEIZQ = 17;
-  public static final int DEFAULT = 59;
+  public static final int DEFAULT = 60;
   public static final int MENOSUNO = 6;
   public static final int LONG = 25;
-  public static final int LITERALHEXADECIMAL = 40;
+  public static final int LITERALHEXADECIMAL = 41;
   public static final int MASUNO = 9;
   public static final int TERMINAL = 7;
   public static final int PARDER = 16;
-  public static final int NEGADO = 50;
+  public static final int NEGADO = 51;
   public static final int DO = 28;
   public static final String[] terminalNames = new String[] {
   "EOF",
@@ -99,6 +100,7 @@ public class sym {
   "SHORT",
   "COMILLA",
   "DO",
+  "CONTINUE",
   "PCOMA",
   "VOID",
   "CONST",

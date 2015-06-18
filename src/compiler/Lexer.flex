@@ -2,6 +2,13 @@ package compiler;
 
 import java_cup.runtime.Symbol;
 %%
+%{
+        private TablaSimbolos tabla;
+        public Yylex(Reader in, TablaSimbolos t){
+            this(in);
+            this.tabla = t;
+        }
+%}
 
 %public
 %type Token
