@@ -626,7 +626,7 @@ non terminal Declaracion_Char, tipo_Char, begin_dos, ParteIzq;
 non terminal SentAsignacion, Cuerpo, SentIncDec;
 non terminal Expresion Expresion, Resto, SentWhile, Condicion,BloqueOSentencia;
 non terminal DeclaracionLocal, ListaVarLocal, VarLocal, DeclaracionesLocales;
-non terminal SentIf, SentElse, SentPuts, SentPutw;
+non terminal SentIf, SentElse, SentPuts, SentPutw, cuerpoMain;
 non terminal Vector ListaParametros;
 non terminal Expresion SentFuncion;
 
@@ -675,7 +675,7 @@ Cuerpo ::= MAIN PARIZQ PARDER LLAVEIZQ
 		ciPonerEtiqueta("MAIN");
 		direccionLocal = -1;
             :}	
-             DeclaracionesLocales list_sentencias 
+             DeclaracionesLocales cuerpoMain 
              {: 
 		finPrograma();
 		generarCadenas();
@@ -869,6 +869,7 @@ type ::= LITERALDECIMAL
         | LITERALPTOFLOTANTE
         ;
 
+cuerpoMain ::= list_sentencias| ;
 list_sentencias ::= sentencia
                 | list_sentencias sentencia 
                 ; 
@@ -891,8 +892,8 @@ sentencia ::= SentWhile
               | return_sentencia
               | SentAsignacion
               | SentIncDec
-              |SentPutw 
-              |SentPuts 
+              | SentPutw 
+              | SentPuts 
               | error 
               ;
 
