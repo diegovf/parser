@@ -1,15 +1,7 @@
 package compiler;
 
-import java_cup.runtime.Symbol;
+import java_cup.runtime.*;
 %%
-%{
-        private TablaSimbolos tabla;
-        public Yylex(Reader in, TablaSimbolos t){
-            this(in);
-            this.tabla = t;
-        }
-%}
-
 %public
 %type Token
 
@@ -49,6 +41,13 @@ import java_cup.runtime.Symbol;
 
 
     public StringBuilder string = new StringBuilder();
+    
+    String tok = "";
+    private void info() {
+        int linea = yyline + 1;
+        tok = yytext();
+                InformacionCodigo.guardarInformacionCodigo(linea,tok);
+    }
 %}
 
 /* SALTO DE LINEA Y CUALQUIER CARACTER */
@@ -101,24 +100,35 @@ SEPARADOR = "("|")"|"{"|"}"|"["|"]"|","|"."
 
 /* OPERADORES */
 OPERADORES = =|"=="|"+"|"*"|"-"|"/"|"<"|"<="|">"|">="|"!="|"!"|"||"|"&&"|"<<"|"<<="|
-">>"|">>="|"~"|"&"|"&="|"|"|"|="|"("|")"|"["|"]"|"{"|"}"|"."|"->"|"++"|"--"|
+">>"|">>="|"~"|"&"|"&="|"|"|"|="|"("|")"|"["|"]"|"{"|"}"|"."|"->"|"--"|
 "(type)"|"*"|"&"|"new"|"true"|"false"|"%"|"#include"|"delete"|"#define"|"-="
 |"+="|"#import"|"?:"|"#ifdef"|"#else"|"#endif"|"#pragma"|"#undef"|"#error"
 
-LISTABOOLEANOS =  "=="|">="|">"|"<="|"<"|"!="|"||"|"&&"
 
 INC_DEC = "++"|"--"
 
 OPERADORCOMBINADO = "+="|"-="|"*="|"/="
+CadenaTexto = \"([\x20-\x21\x23-\xFE])*\"
 
-OPERADORSIMPLE = "+"|"-"|"*"|"/"|"%"
 
 %state STRING, CHARLITERAL
 
 %%
 
 <YYINITIAL> {
-    "for"   {return new Symbol(sym.FOR, yychar, yyline, yytext());}
+    {CadenaTexto}  {return new Symbol(sym.CADENATEXTO, yychar, yyline, yytext());}
+    "++"    {info(); return new Symbol(sym.MASMAS, yychar, yyline, yytext());}
+    "!="  {info(); return new Symbol(sym.DISTINTO, yychar, yyline, yytext());}
+    "!"  {info(); return new Symbol(sym.NOT, yychar, yyline, yytext());}
+    "<="  {info(); return new Symbol(sym.MAIN, yychar, yyline, yytext());}
+    ">="  {info(); return new Symbol(sym.MAYORIGUAL, yychar, yyline, yytext());}
+    "<"  {info(); return new Symbol(sym.MENOR, yychar, yyline, yytext());}
+    ">"  {info(); return new Symbol(sym.MAYOR, yychar, yyline, yytext());}
+    "=="  {info(); return new Symbol(sym.IGUALIGUAL, yychar, yyline, yytext());}
+    "&&"  {info(); return new Symbol(sym.AND, yychar, yyline, yytext());}
+    "||"  {info(); return new Symbol(sym.OR, yychar, yyline, yytext());}
+    "main"  {info(); return new Symbol(sym.MAIN, yychar, yyline, yytext());}
+    "for"   {info(); return new Symbol(sym.FOR, yychar, yyline, yytext());}
     "("   {return new Symbol(sym.PARIZQ, yychar, yyline, yytext());}
     ")"   {return new Symbol(sym.PARDER, yychar, yyline, yytext());}
     "{"   {return new Symbol(sym.LLAVEIZQ, yychar, yyline, yytext());}
@@ -134,7 +144,6 @@ OPERADORSIMPLE = "+"|"-"|"*"|"/"|"%"
     "if"      {return new Symbol(sym.IF, yychar, yyline, yytext());}
     "else"      {return new Symbol(sym.ELSE, yychar, yyline, yytext());}
     "'"   {return new Symbol(sym.COMILLA, yychar, yyline, yytext());}
-    "!"   {return new Symbol(sym.NEGADO, yychar, yyline, yytext());}
     "switch" {return new Symbol(sym.SWITCH, yychar, yyline, yytext());}
     "case"   {return new Symbol(sym.CASE, yychar, yyline, yytext());}
     "default" {return new Symbol(sym.DEFAULT, yychar, yyline, yytext());}
@@ -146,20 +155,27 @@ OPERADORSIMPLE = "+"|"-"|"*"|"/"|"%"
     "break"    {return new Symbol(sym.BREAK, yychar, yyline, yytext());}
     "return"    {return new Symbol(sym.RETURN, yychar, yyline, yytext());}
     "do"    {return new Symbol(sym.DO, yychar, yyline, yytext());}
+    "+"    {return new Symbol(sym.SUMA, yychar, yyline, yytext());}
+    "-"    {return new Symbol(sym.RESTA, yychar, yyline, yytext());}
+    "*"    {return new Symbol(sym.PRODUCTO, yychar, yyline, yytext());}
+    "/"    {return new Symbol(sym.DIVISION, yychar, yyline, yytext());}
+    "%"    {return new Symbol(sym.MODULO, yychar, yyline, yytext());}
+    "puts" {return new Symbol(sym.PUTS, yychar, yyline, yytext());}
+    "putw" {return new Symbol(sym.PUTW, yychar, yyline, yytext());}
     
-  /* OPERADORES SIMPLE */
-  {OPERADORSIMPLE}              {return new Symbol(sym.OPERADORSIMPLE, yychar, yyline, yytext());}
+
 
   /* OPERADORES COMBINADOS */
   {OPERADORCOMBINADO}           {return new Symbol(sym.OPERADORCOMBINADO, yychar, yyline, yytext());}
 
   /* INCREMENTAR DECREMENTAR */
   {INC_DEC}                     {return new Symbol(sym.INC_DEC, yychar, yyline, yytext());}
+    
+ 
 
   /* PALABRAS RESERVADAS */
   {PR}                           {return new Symbol(sym.RESERVADA, yychar, yyline, yytext());}
   
-    {LISTABOOLEANOS}            {return new Symbol(sym.LISTABOOLEANOS, yychar, yyline, yytext());}
   /* LITERALES BOOLEANOS */
   "true"                         {return new Symbol(sym.LITERALBOOLEANO, yychar, yyline, yytext());}
   "false"                        {return new Symbol(sym.LITERALBOOLEANO, yychar, yyline, yytext());}
@@ -200,10 +216,10 @@ OPERADORSIMPLE = "+"|"-"|"*"|"/"|"%"
   {WhiteSpace}                   { /* ignorar */ }
 
   /* IDENTIFICADORES */ 
-  {Identifier}                   {return new Symbol(sym.IDENTIFICADOR, yychar, yyline, yytext());}  
+  {Identifier}                   {info(); return new Symbol(sym.IDENTIFICADOR, yychar, yyline, yytext());}  
 
 <STRING> {
-  \"                             {return new Symbol(sym.LITERALSTRING, yychar, yyline, yytext());}
+  \"                             {info(); return new Symbol(sym.LITERALSTRING, yychar, yyline, yytext());}
   
   {StringCharacter}+             { string.append( yytext() ); }
   

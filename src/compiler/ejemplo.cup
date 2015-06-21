@@ -1,14 +1,574 @@
 package compiler;
+import java_cup.runtime.*;
+import java.util.*;
 import java.io.*;
-import java_cup.runtime.*; 
+
+action code {:
+
+	Tabla tabla;
+	int cuentaWhiles;
+	int cuentaDirecciones;
+	CodigoIntermedio codigoIntermedio;
+	int cuentaIf;
+	Pila pilaIf;
+	int cuentaBucle;
+	Pila pilaBucle;
+	int cuentaCadenas;
+	Lista listaCadenas;
+	Tipo tipoActual;
+	int direccionLocal;
+	boolean hayRetorno = false;
+	int ambitoActual = 0;
+	int direccionRA;
+	int numeroLlamada;
+	Temporales pilaTemporales;
+	Temporal temporales;
+	int direccionesGlobales;
+
+	void inicializar() {
+		tabla = new Tabla();
+		cuentaWhiles = 0;
+		cuentaDirecciones = 10000;
+		direccionesGlobales = cuentaDirecciones;
+		direccionRA = 11000;
+		cuentaIf = 0;
+		pilaIf = new Pila();
+		cuentaBucle = 0;
+		pilaBucle = new Pila();
+		cuentaCadenas = 0;
+		tipoActual = null;
+		numeroLlamada = 1;
+		pilaTemporales = new Temporales();
+		listaCadenas = new Lista();
+		String nombre = parser.nombreFichero.substring(0,parser.nombreFichero.lastIndexOf("."));
+		codigoIntermedio = new CodigoIntermedio(nombre+".ci");
+		try {
+			codigoIntermedio.abrirFicheroEscritura();
+		} catch (IOException e) {
+			System.out.println(Textos.ficheroCiNoExiste);
+			codigoIntermedio.cerrarFicheroEscritura();
+		}
+	}
+
+	Tipo getTipo(String id) {
+		return tabla.getTipo(id);
+	}
+
+	Tipo getTipo(int t) {
+		return tabla.getTipo(t);
+	}
+
+	boolean existeSimbolo(String id) {
+		return tabla.existeSimbolo(id);
+	}
+
+	boolean existeTipo(String id) {
+		return tabla.existeTipo(id);
+	}
+
+	void addTipo(String id) {
+		tabla.addTipo(id);
+	}
+
+	void addTipo(String id, int e) {
+		tabla.addTipo(id,e);
+	}
+
+	boolean existeCampoRegistro(String id) {
+		return tabla.existeCampoRegistro(id);
+	}
+
+	void addTipoCampo(String id) {
+		tabla.addTipoCampo(id);
+	}
+
+	void addSimbolo(String id) {
+		tabla.addSimbolo(id);
+	}
+
+	void setDireccionSimbolo(String id,int dir) {
+		tabla.setDireccionSimbolo(id,dir);
+	}
+
+	void setTipoSimbolo(String id,int tp) {
+		tabla.setTipoSimbolo(id,tp);
+	}
+
+	void setCategoriaSimbolo(String id, String c) {
+		tabla.setCategoriaSimbolo(id,c);
+	}
+
+	void setCategoriaUltimoSimbolo(String c) {
+		tabla.setCategoriaUltimoSimbolo(c);
+	}
+
+	void setAmbitoSimbolo(String id, int a) {
+		tabla.setAmbitoSimbolo(id,a);
+	}
+
+	void eliminarAmbito(int a) {
+		tabla.eliminarAmbito(a);
+	}
+
+	void setParametroUltimoSubprograma(Tipo tp) {
+		tabla.setParametroUltimoSubprograma(tp);
+	}
+
+	boolean existeSimboloAmbito(String id, int a) {
+		return tabla.existeSimboloAmbito(id,a);
+	}
+
+	Simbolo getSimbolo(String id) {
+		return tabla.getSimbolo(id);
+	}
+
+	boolean simboloEsVector(String id) {
+		Simbolo s = getSimbolo(id);
+		Tipo t = getTipo(s.getTipo());
+		if(t.getMaximo()<0) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	int posicionCampoRegistro(int t, String id) {
+		return tabla.posicionCampoRegistro(t,id);
+	}
+
+	int getTipoFuncion() {
+		return tabla.getTipoFuncion();
+	}
+
+	String getIdFuncion() {
+		return tabla.getIdFuncion();
+	}
+
+	int getDimensionParametros(String id) {
+		return tabla.getDimensionParametros(id);
+	}
+
+	Expresion suma(Expresion e1,Expresion e2) {
+		direccionLocal++;
+		Expresion e = null;
+		if(e1.getTipo()==e2.getTipo()) {
+			e = new Expresion(direccionLocal,e1.getTipo());
+	      	codigoIntermedio.guardarCuadrupla(new Cuadrupla("SUMAR",
+								String.valueOf(e1.getDireccion()),
+								String.valueOf(e2.getDireccion()),
+								String.valueOf(direccionLocal)));
+		} else {
+			parser.error(Textos.tiposIncompatibles);
+		}
+		return e;
+	}
+
+	Expresion resta(Expresion e1,Expresion e2) {
+		direccionLocal++;
+		Expresion e = null;
+		if(e1.getTipo()==e2.getTipo()) {
+			e = new Expresion(direccionLocal,e1.getTipo());
+	      	codigoIntermedio.guardarCuadrupla(new Cuadrupla("RESTAR",
+								String.valueOf(e1.getDireccion()),
+								String.valueOf(e2.getDireccion()),
+								String.valueOf(direccionLocal)));
+		} else {
+			parser.error(Textos.tiposIncompatibles);
+		}
+		return e;
+	}
+
+	Expresion producto(Expresion e1,Expresion e2) {
+		direccionLocal++;
+		Expresion e = null;
+		if(e1.getTipo()==e2.getTipo()) {
+			e = new Expresion(direccionLocal,e1.getTipo());
+	      	codigoIntermedio.guardarCuadrupla(new Cuadrupla("MULTIPLICAR",
+								String.valueOf(e1.getDireccion()),
+								String.valueOf(e2.getDireccion()),
+								String.valueOf(direccionLocal)));
+		} else {
+			parser.error(Textos.tiposIncompatibles);
+		}
+		return e;
+	}
+
+	Expresion division(Expresion e1,Expresion e2) {
+		direccionLocal++;
+		Expresion e = null;
+		if(e1.getTipo()==e2.getTipo()) {
+			e = new Expresion(direccionLocal,e1.getTipo());
+	      	codigoIntermedio.guardarCuadrupla(new Cuadrupla("DIVIDIR",
+								String.valueOf(e1.getDireccion()),
+								String.valueOf(e2.getDireccion()),
+								String.valueOf(direccionLocal)));
+		} else {
+			parser.error(Textos.tiposIncompatibles);
+		}
+		return e;
+	}
+
+	Expresion modulo(Expresion e1,Expresion e2) {
+		direccionLocal++;
+		Expresion e = null;
+		if(e1.getTipo()==e2.getTipo()) {
+			e = new Expresion(direccionLocal,e1.getTipo());
+	      	codigoIntermedio.guardarCuadrupla(new Cuadrupla("MODULO",
+								String.valueOf(e1.getDireccion()),
+								String.valueOf(e2.getDireccion()),
+								String.valueOf(direccionLocal)));
+		} else {
+			parser.error(Textos.tiposIncompatibles);
+		}
+		return e;
+	}
+
+	Expresion entero(String e) {
+		direccionLocal++;
+		codigoIntermedio.guardarCuadrupla(new Cuadrupla("CARGAR_VALOR",
+								e,
+								null,
+								String.valueOf(direccionLocal)));
+		return new Expresion(direccionLocal,getTipo("int").getCod());
+	}
+
+	Expresion identificador(String id) {
+		Expresion e = null;
+		if(existeSimbolo(id)) {
+			Simbolo s = getSimbolo(id);
+			Tipo t = getTipo(s.getTipo());
+			direccionLocal = direccionLocal+(t.getDimension());
+			e = new Expresion(direccionLocal,t.getCod());
+			codigoIntermedio.guardarCuadrupla(new Cuadrupla("CARGAR_DIRECCION",
+								String.valueOf((getSimbolo(id)).getDireccion()),
+								null,
+								String.valueOf(direccionLocal)));
+		} else {
+			parser.error(Textos.simboloNoDeclarado);
+		}
+		return e;
+	}
+
+	Expresion funcion(String id, Vector lp) {
+		Expresion e = null;
+		if(existeSimbolo(id)) {
+			Simbolo s = getSimbolo(id);
+			Tipo t = getTipo(s.getTipo());
+			if(s.getNumeroParametros()!=lp.size()) {
+				parser.error(Textos.numeroParametrosDiferente);
+			} else {
+				if(s.comprobarTiposParametros(lp)) {
+					direccionLocal = direccionLocal + (t.getDimension());
+					e = new Expresion(direccionLocal,t.getCod());
+				} else {
+					parser.error(Textos.tiposParametrosIncorrectos);
+				}
+			}
+		} else {
+			parser.error(Textos.noExisteFuncion);
+		}
+		return e;
+	}
+
+	Expresion or(Expresion c1,Expresion c2) {
+		Expresion e = null;
+		int t = getTipo("int").getCod();
+		if(c1.getTipo()==t && c2.getTipo()==t) {
+			direccionLocal++;
+			e = new Expresion(direccionLocal,t);
+	      	codigoIntermedio.guardarCuadrupla(new Cuadrupla("OR",
+								String.valueOf(c1.getDireccion()),
+								String.valueOf(c2.getDireccion()),
+								String.valueOf(direccionLocal)));
+		} else {
+			parser.error(Textos.tiposInvalidos);
+		}
+		return e;
+	}
+
+	Expresion and(Expresion c1,Expresion c2) {
+		Expresion e = null;
+		int t = getTipo("int").getCod();
+		if(c1.getTipo()==t && c2.getTipo()==t) {
+			direccionLocal++;
+			e = new Expresion(direccionLocal,t);
+	      	codigoIntermedio.guardarCuadrupla(new Cuadrupla("AND",
+								String.valueOf(c1.getDireccion()),
+								String.valueOf(c2.getDireccion()),
+								String.valueOf(direccionLocal)));
+		} else {
+			parser.error(Textos.tiposInvalidos);
+		}
+		return e;
+	}
+
+	Expresion mayor(Expresion c1,Expresion c2) {
+		Expresion e = null;
+		int t = getTipo("int").getCod();
+		if(c1.getTipo()==t && c2.getTipo()==t) {
+			direccionLocal++;
+			e = new Expresion(direccionLocal,t);
+	      	codigoIntermedio.guardarCuadrupla(new Cuadrupla("MAYOR",
+								String.valueOf(c1.getDireccion()),
+								String.valueOf(c2.getDireccion()),
+								String.valueOf(direccionLocal)));
+		} else {
+			parser.error(Textos.tiposInvalidos);
+		}
+		return e;
+	}
+
+	Expresion mayorIgual(Expresion c1,Expresion c2) {
+		Expresion e = null;
+		int t = getTipo("int").getCod();
+		if(c1.getTipo()==t && c2.getTipo()==t) {
+			direccionLocal++;
+			e = new Expresion(direccionLocal,t);
+	      	codigoIntermedio.guardarCuadrupla(new Cuadrupla("MAYORIGUAL",
+								String.valueOf(c1.getDireccion()),
+								String.valueOf(c2.getDireccion()),
+								String.valueOf(direccionLocal)));
+		} else {
+			parser.error(Textos.tiposInvalidos);
+		}
+		return e;
+	}
+
+	Expresion menor(Expresion c1,Expresion c2) {
+		Expresion e = null;
+		int t = getTipo("int").getCod();
+		if(c1.getTipo()==t && c2.getTipo()==t) {
+			direccionLocal++;
+			e = new Expresion(direccionLocal,t);
+	      	codigoIntermedio.guardarCuadrupla(new Cuadrupla("MENOR",
+								String.valueOf(c1.getDireccion()),
+								String.valueOf(c2.getDireccion()),
+								String.valueOf(direccionLocal)));
+		} else {
+			parser.error(Textos.tiposInvalidos);
+		}
+		return e;
+	}
+
+	Expresion menorIgual(Expresion c1,Expresion c2) {
+		Expresion e = null;
+		int t = getTipo("int").getCod();
+		if(c1.getTipo()==t && c2.getTipo()==t) {
+			direccionLocal++;
+			e = new Expresion(direccionLocal,t);
+	      	codigoIntermedio.guardarCuadrupla(new Cuadrupla("MENORIGUAL",
+								String.valueOf(c1.getDireccion()),
+								String.valueOf(c2.getDireccion()),
+								String.valueOf(direccionLocal)));
+		} else {
+			parser.error(Textos.tiposInvalidos);
+		}
+		return e;
+	}
+
+	Expresion igual(Expresion c1,Expresion c2) {
+		Expresion e = null;
+		int t = getTipo("int").getCod();
+		if(c1.getTipo()==t && c2.getTipo()==t) {
+			direccionLocal++;
+			e = new Expresion(direccionLocal,t);
+	      	codigoIntermedio.guardarCuadrupla(new Cuadrupla("IGUAL",
+								String.valueOf(c1.getDireccion()),
+								String.valueOf(c2.getDireccion()),
+								String.valueOf(direccionLocal)));
+		} else {
+			parser.error(Textos.tiposInvalidos);
+		}
+		return e;
+	}
+
+	Expresion distinto(Expresion c1,Expresion c2) {
+		Expresion e = null;
+		int t = getTipo("int").getCod();
+		if(c1.getTipo()==t && c2.getTipo()==t) {
+			direccionLocal++;
+			e = new Expresion(direccionLocal,t);
+	      	codigoIntermedio.guardarCuadrupla(new Cuadrupla("DISTINTO",
+								String.valueOf(c1.getDireccion()),
+								String.valueOf(c2.getDireccion()),
+								String.valueOf(direccionLocal)));
+		} else {
+			parser.error(Textos.tiposInvalidos);
+		}
+		return e;
+	}
+
+	Expresion not(Expresion c) {
+		Expresion e = null;
+		int t = getTipo("int").getCod();
+		if(c.getTipo()==t) {
+			direccionLocal++;
+			e = new Expresion(direccionLocal,t);
+	      	codigoIntermedio.guardarCuadrupla(new Cuadrupla("NOT",
+								String.valueOf(c.getDireccion()),
+								null,
+								String.valueOf(direccionLocal)));
+		} else {
+			parser.error(Textos.tipoInvalido);
+		}
+		return e;
+	}
+
+	void asignacion(Expresion e1,Expresion e2) {
+		codigoIntermedio.guardarCuadrupla(new Cuadrupla("CARGAR_DIRECCION",
+								String.valueOf(e2.getDireccion()),
+								null,
+								String.valueOf(e1.getDireccion())));
+
+	}
+
+	void cerrarCI() {
+		codigoIntermedio.cerrarFicheroEscritura();
+	}
+
+	void condicion(Expresion e,int n) {
+		codigoIntermedio.guardarCuadrupla(new Cuadrupla("SALTAR_CONDICION",
+					String.valueOf(e.getDireccion()),
+					null,
+					"ELSE_"+String.valueOf(n)));
+	}
+
+	void saltarEtiqueta(String eti,int n) {
+		codigoIntermedio.guardarCuadrupla(new Cuadrupla("SALTAR_ETIQUETA",
+					null,
+					null,
+					eti+"_"+String.valueOf(n)));
+	}
+
+	void ponerEtiqueta(String eti,int n) {
+		codigoIntermedio.guardarCuadrupla(new Cuadrupla("ETIQUETA",
+					null,
+					null,
+					eti+"_"+String.valueOf(n)));
+	}
+
+	void condicion2(Expresion e,int n) {
+		codigoIntermedio.guardarCuadrupla(new Cuadrupla("SALTAR_CONDICION",
+					String.valueOf(e.getDireccion()),
+					null,
+					"FINBUCLE_"+String.valueOf(n)));
+	}
+
+	void romper(int n) {
+		codigoIntermedio.guardarCuadrupla(new Cuadrupla("SALTAR_ETIQUETA",
+					null,
+					null,
+					"FINBUCLE_"+String.valueOf(n)));
+	}
+
+	void imprimirW(Expresion e) {
+		codigoIntermedio.guardarCuadrupla(new Cuadrupla("IMPRIMIR_ENTERO",
+					String.valueOf(e.getDireccion()),
+					null,
+					null));
+	}
+
+	void imprimirS(String c,int cuenta) {
+		listaCadenas.addCadena(c);
+		codigoIntermedio.guardarCuadrupla(new Cuadrupla("IMPRIMIR_CADENA",
+					"CADENA_"+String.valueOf(cuenta),
+					null,
+					null));
+	}
+
+	void generarCadenas() {
+		for(int i=0;i<listaCadenas.size();i++) {
+			codigoIntermedio.guardarCuadrupla(new Cuadrupla("PONER_CADENA",
+					"CADENA_"+String.valueOf(i+1),
+					null,
+					listaCadenas.getCadena(i)));
+		}
+	}
+
+	void generarCF() {
+		CodigoFinal codigoFinal = new CodigoFinal(codigoIntermedio,parser.nombreFichero,direccionesGlobales);
+		try {
+			codigoFinal.traducirCodigo();
+		} catch(Exception e) {}
+	}
+
+	void finPrograma() {
+		codigoIntermedio.guardarCuadrupla(new Cuadrupla("FIN",null,null,null));
+	}
+
+	void saltarMain(int d) {
+		codigoIntermedio.guardarCuadrupla(new Cuadrupla("CARGAR_IX",String.valueOf(d+3),null,null));
+		codigoIntermedio.guardarCuadrupla(new Cuadrupla("SALTAR_ETIQUETA",null,null,"MAIN"));
+	}
+
+	void apilarTemporales(String id) {
+		pilaTemporales.apilar(direccionLocal,-1);
+		temporales = new Temporal(direccionLocal+3,1);
+		direccionLocal = direccionLocal + getDimensionParametros(id);
+	}
+
+	void desapilarTemporales() {
+		direccionLocal = pilaTemporales.getBase();
+		pilaTemporales.desapilar();
+	}
+
+	void procesaLlamada(String id) {
+		Simbolo simbolo = getSimbolo(id);
+		codigoIntermedio.guardarCuadrupla(new Cuadrupla("FINLLAMADA1",String.valueOf(temporales.getBase()),String.valueOf(temporales.getBase()+1),null));
+		codigoIntermedio.guardarCuadrupla(new Cuadrupla("FINLLAMADA2",id,String.valueOf(numeroLlamada),null));
+	}
+
+	Expresion procesaParametro(Expresion e) {
+		Tipo tipo = getTipo(e.getTipo());
+		if(tipo.getCod()!=getTipo("int").getCod()) {
+			parser.error(Textos.tipoInvalido);
+		} else {
+			codigoIntermedio.guardarCuadrupla(new Cuadrupla("PARAMETRO",String.valueOf(e.getDireccion()),
+				null,String.valueOf(temporales.getBase()+temporales.getIndice())));
+			temporales.setIndice(temporales.getIndice()+1);
+		}
+		return e;
+	}
+
+	void procesaRetorno(Expresion e) {
+		codigoIntermedio.guardarCuadrupla(new Cuadrupla("RETORNO",String.valueOf(e.getDireccion()),null,null));
+	}
+
+	void procesaRetorno() {
+		codigoIntermedio.guardarCuadrupla(new Cuadrupla("RETORNO","-1",null,null));
+		
+	}
+
+	void ciCampoRegistro(int d1, int d2) {
+		codigoIntermedio.guardarCuadrupla(new Cuadrupla("CARGAR_DIRECCION",
+								String.valueOf(d1),
+								null,
+								String.valueOf(d2)));
+	}
+
+	void ciExpresionVector(int d1, int d2) {
+		codigoIntermedio.guardarCuadrupla(new Cuadrupla("VECTOR",
+								String.valueOf(d1),
+								String.valueOf(d2),
+								null));
+	}
+
+	void ciPonerEtiqueta(String id) {
+		codigoIntermedio.guardarCuadrupla(new Cuadrupla("ETIQUETA",
+					null,
+					null,
+					id));
+	}
+:} 
 
 parser code
 {:
-        static TablaSimbolos tabla = new TablaSimbolos();
+        static String nombreFichero;
 	public static void main(String args[]) throws Exception{
 		//new parser(new Yylex(new FileInputStream(args[0]))).parse();
                 Reader reader = new FileReader("src\\compiler\\entrada.txt");
-		new Analizador(new Yylex(reader), ).parse();
+                nombreFichero = "src\\compiler\\entrada.txt";
+		new Analizador(new Yylex(reader)).parse();
 	}
 	
         public void syntax_error(Symbol s){
@@ -20,22 +580,32 @@ parser code
             System.out.println("Error sintactico en la sentencia");
             System.out.println("La Cadena: " + s.value+" en la Linea: " + (s.right+1) + " esta fuera de contexto." );
         }
+        public void error(String mensaje) {
+            report_error("ERROR -> Linea: "+InformacionCodigo.linea+" Lexema: "+InformacionCodigo.token+" "+mensaje);
+	}
+        public void report_error(String message) {
+		System.err.println(message);
+	}
        
 :}
 
 terminal String DIFERENTE, MAYORIGUAL, MENORIGUAL, MENOSNUM, MENOSUNO, TERMINAL;
 terminal String MASNUM, MASUNO, IGUAL, MAYOR, MENOR, PYCOMA;
-terminal String COMA, PARIZQ, PARDER, LLAVEIZQ, LLAVEDER, FOR, INT, ID;
-terminal integer NUMERO, LITERALDECIMAL; 
+terminal String COMA, PARIZQ, PARDER, LLAVEIZQ, LLAVEDER, FOR, INT;
+terminal integer NUMERO; 
 terminal CHAR, LONG, SHORT, COMILLA,DO, CONTINUE;
 terminal PCOMA, VOID, CONST, ELSE,READ,WRITE;
 terminal LITERALNULL, LITERALPTOFLOTANTE, LITERALSTRING, LITERALOCTAL, LITERALBOOLEANO;
-terminal LITERALHEXADECIMAL, RESERVADA, IDENTIFICADOR, SEPARADOR, OPERADOR;
-terminal ERROR, PACKAGE, IMPORT, WHILE, LISTABOOLEANOS, NEGADO, BREAK, RETURN;
+terminal LITERALHEXADECIMAL, RESERVADA, SEPARADOR, OPERADOR;
+terminal ERROR, PACKAGE, IMPORT, WHILE, LISTABOOLEANOS, NEGADO, BREAK, RETURN, MAIN;
 terminal INC_DEC, OPERADORSIMPLE, OPERADORCOMBINADO,IF, SWITCH, CASE, DEFAULT, DOSPUNTOS;
-terminal Simbolo ID;
+terminal Simbolo IDS;
+terminal String IDENTIFICADOR;
+terminal SUMA, RESTA, DIVISION, PRODUCTO, MODULO;
+terminal String LITERALDECIMAL,CADENATEXTO;
+terminal OR, AND, DISTINTO, NOT, IGUALIGUAL, MASMAS,PUTW,PUTS;
 
-non terminal globals_opt, functions_opt, begin, globals_otp, mistake, express, expresion;
+non terminal globals_opt, functions_opt, begin, globals_otp, mistake, express, expresionDos;
 non terminal globals, global, functions, function, return_char, return_int, return_long;
 non terminal type_char, type_int, type_long, type_shor, function_read, function_writet;
 non terminal function_char, function_int, function_long, function_short, function_void;
@@ -50,17 +620,39 @@ non terminal case_body, case_expression, cases, default, case, consts, return_se
 non terminal ifelse, ifelse_aux, else, expression, type_short, return_otro, read, write;
 non terminal type_declaracion, const, identificadores, function_write, asignaciones, asignacion;
 non terminal parametros_write, sentencias_loops, cuerpo_ifelse, sentencia_loop;
+non terminal CabeceraDecl, DeclVar, UnaVar, ListaVar, Declaraciones, Declaracion;
+non terminal String Tipo, UnId;
+non terminal Declaracion_Char, tipo_Char, begin_dos, ParteIzq;
+non terminal SentAsignacion, Cuerpo, SentIncDec;
+non terminal Expresion Expresion, Resto, SentWhile, Condicion,BloqueOSentencia;
+non terminal DeclaracionLocal, ListaVarLocal, VarLocal, DeclaracionesLocales;
+non terminal SentIf, SentElse, SentPuts, SentPutw;
+non terminal Vector ListaParametros;
+non terminal Expresion SentFuncion;
+
 
 
 precedence left INT, LONG, CHAR, SHORT, PYCOMA;
-precedence left LLAVEDER, PYCOMA;
-
+precedence left PYCOMA;
+precedence left SUMA, RESTA;
+precedence left PRODUCTO, DIVISION, MODULO;
+precedence left OR;   
+precedence left SUMA, RESTA;
+precedence left AND;
+precedence right NOT;
+precedence left PARIZQ, PARDER;
+precedence left ELSE;
 start with begin;
 
 
-begin ::= globals | list_functions;
+begin ::= {:
+			inicializar();
+			saltarMain(direccionRA);
+		 :}begin_dos;
 
-globals ::= list_globals list_functions
+begin_dos ::= globals | list_functions;
+
+globals ::= list_globals list_functions 
             ;
 
 list_globals  ::= global
@@ -78,6 +670,19 @@ global ::=  type_char
             | error PYCOMA
             ;
 
+Cuerpo ::= MAIN PARIZQ PARDER LLAVEIZQ 
+	    {:
+		ciPonerEtiqueta("MAIN");
+		direccionLocal = -1;
+            :}	
+             DeclaracionesLocales list_sentencias 
+             {: 
+		finPrograma();
+		generarCadenas();
+		cerrarCI(); 
+		generarCF();
+            :}
+	     LLAVEDER;
 list_functions ::= function
             | list_functions function
             ;
@@ -89,6 +694,7 @@ function ::= function_char
             | function_void
             | function_read
             | function_write
+            | Cuerpo
             | error
             ;
 
@@ -160,34 +766,98 @@ declaracion ::= type_char
                 | type_short
                 | CONST type_char
                 | CONST type_int
-                | IDENTIFICADOR IGUAL express PYCOMA
                 | CONST type_long
                 | CONST type_short
-                | IDENTIFICADOR OPERADORCOMBINADO express PYCOMA
-                | IDENTIFICADOR INC_DEC PYCOMA
                 | error PYCOMA
                 ;
 
-asignaciones ::= asignacion
-                | asignaciones asignacion
+
+SentAsignacion ::= ParteIzq:b IGUAL Expresion:e PYCOMA
+				{:
+                                Expresion p = (Expresion)b;
+					if(p.getTipo()!=getTipo("int").getCod() || 
+						e.getTipo()!=getTipo("int").getCod()) {
+						parser.error(Textos.tiposInvalidos);
+					} else {
+						asignacion(p,e);
+					}
+				:}
+                   ;
+
+Expresion ::= Expresion:e1 SUMA Expresion:e2 
+                {:
+                        RESULT=suma(e1,e2);
+                :}
+                |
+                Expresion:e1 RESTA Expresion:e2 
+                    {:
+                        RESULT=resta(e1,e2);
+                    :}
+                |
+                Expresion:e1 PRODUCTO Expresion:e2 
+                    {:
+                            RESULT=producto(e1,e2);
+                    :}
+                |
+                Expresion:e1 DIVISION Expresion:e2 
+                    {:
+                            RESULT=division(e1,e2);
+                    :}
+                |
+                IDENTIFICADOR:id 
+                    {:
+                            RESULT = identificador(id);
+                    :}
+                |
+                Expresion:e1 MODULO Expresion:e2
+                      {:
+                              RESULT = modulo(e1,e2);
+                      :}
+                |
+                LITERALDECIMAL:e 
+                {:
+                        RESULT=entero(e);
+                :}
+                |
+                PARIZQ Expresion:e PARDER 
+                {:
+                              RESULT=e;
+                :}
+                |
+		SentFuncion:e
+		{:
+			RESULT = e;
+		:}
                 ;
 
-asignacion ::= IDENTIFICADOR IGUAL express PYCOMA
-            | IDENTIFICADOR OPERADORCOMBINADO express PYCOMA
-            | IDENTIFICADOR INC_DEC PYCOMA
-            ;
+ParteIzq ::= IDENTIFICADOR:id
+			{: 
+				Expresion e = null;
+				if(existeSimbolo(id)) {
+					Simbolo s = getSimbolo(id);
+					if(s.getCategoria().equals("variable") || s.getCategoria().equals("parametro")) {
+						e = new Expresion(s.getDireccion(),s.getTipo());
+					} else {
+						parser.error(Textos.identificadorInvalido);
+					}
+				} else {
+					parser.error(Textos.simboloNoDeclarado);
+				}
+				RESULT = e;
+			:}
+                        ;
 
 const ::= CONST | ;
 
-express::= expresion
-            | express expresion
+express::= expresionDos
+            | express expresionDos
             ;
 
 express_for::= express
             | operacion
             ;
               
-expresion ::= LITERALDECIMAL
+expresionDos ::= LITERALDECIMAL
             | LITERALOCTAL
             | LITERALHEXADECIMAL
             | OPERADORSIMPLE
@@ -200,7 +870,7 @@ type ::= LITERALDECIMAL
         ;
 
 list_sentencias ::= sentencia
-                | list_sentencias sentencia  
+                | list_sentencias sentencia 
                 ; 
 
 sentencias_loops ::= sentencia_loop
@@ -211,16 +881,66 @@ primitivas ::= read
               ;
 
 
-sentencia ::= while
+sentencia ::= SentWhile
               | for 
-              | ifelse
+              | SentIf
               | switch
               | read
               | write
               | dowhile
               | return_sentencia
+              | SentAsignacion
+              | SentIncDec
+              |SentPutw 
+              |SentPuts 
               | error 
               ;
+
+SentIncDec ::= 
+            Expresion:e MASMAS PYCOMA
+            {:
+                Integer d = e.getDireccion();
+                RESULT=entero(d.toString());
+            :}
+            |
+            MASMAS Expresion:e PYCOMA
+            {:
+                Integer d = e.getDireccion();
+                RESULT=entero(d.toString());
+            :}
+            ;
+DeclaracionesLocales ::= DeclaracionesLocales DeclaracionLocal | DeclaracionLocal |
+                     ;
+
+DeclaracionLocal ::= Tipo:tp
+		{: 
+                    if(existeTipo(tp)) {
+			tipoActual = getTipo(tp);
+                    } else {
+                        parser.error(Textos.noExisteTipo);
+                    }
+            :}
+            VarLocal:p IGUAL Expresion:e PYCOMA
+            {: asignacion((Expresion)p, e); :}
+            ;
+
+ListaVarLocal ::= ListaVarLocal COMA VarLocal | VarLocal;
+
+
+VarLocal ::= IDENTIFICADOR:id
+	    {:
+                if(existeSimboloAmbito(id,1)) {
+                    parser.error(Textos.simboloRedeclarado);
+		} else {
+		    addSimbolo(id);
+			setTipoSimbolo(id,tipoActual.getCod());
+			setCategoriaSimbolo(id,"variable");
+			setDireccionSimbolo(id,direccionLocal);
+			setAmbitoSimbolo(id,1);
+			direccionLocal = direccionLocal + tipoActual.getDimension();
+                    }
+		:}
+		;
 
 sentencia_loop ::= while
                 | for 
@@ -240,9 +960,28 @@ return_sentencia ::= RETURN IDENTIFICADOR PYCOMA
             ;
 
 
-while ::= WHILE PARIZQ condicion PARDER LLAVEIZQ cuerpo_sentencia LLAVEDER 
-        ;
-        
+SentWhile ::= WHILE PARIZQ 
+			{:
+				cuentaBucle++;
+				pilaBucle.apilar(cuentaBucle);
+				ponerEtiqueta("BUCLE",pilaBucle.verCima());
+			:}
+		  Condicion:c
+			{:
+				condicion2(c,pilaBucle.verCima());
+				cuentaWhiles++;
+			:} 
+		  PARDER BloqueOSentencia
+			{:
+				cuentaWhiles--;
+				saltarEtiqueta("BUCLE",pilaBucle.verCima());
+				ponerEtiqueta("FINBUCLE",pilaBucle.verCima());
+				pilaBucle.desapilar();
+			:}
+		  ;
+
+BloqueOSentencia ::= LLAVEIZQ list_sentencias LLAVEDER | sentencia;
+      
 for ::=   FOR PARIZQ first_for condicion PYCOMA express_for PARDER LLAVEIZQ cuerpo_sentencia LLAVEDER        
           ;
 
@@ -281,16 +1020,28 @@ first_for ::= type_char
                 | error
                 ;
 
-ifelse ::= if 
-        | if else 
-        
-        ;
+SentIf ::= IF PARIZQ 
+			{:
+				cuentaIf++;
+				pilaIf.apilar(cuentaIf);
+			:}
+           Condicion:c 
+			{:
+				condicion(c,pilaIf.verCima());
+			:}
+	     PARDER BloqueOSentencia
+			{:
+				saltarEtiqueta("FINIF",pilaIf.verCima());
+				ponerEtiqueta("ELSE",pilaIf.verCima());
+			:}
+	     SentElse
+			{:
+				ponerEtiqueta("FINIF",pilaIf.verCima());
+				pilaIf.desapilar();
+			:}
+           ;
 
-
-if ::= IF PARIZQ condicion PARDER LLAVEIZQ cuerpo_ifelse LLAVEDER 
-        ;
-else ::= ELSE LLAVEIZQ cuerpo_ifelse LLAVEDER 
-        ;
+SentElse ::= ELSE BloqueOSentencia |;
 
 dowhile ::= DO LLAVEIZQ cuerpo_sentencia LLAVEDER WHILE PARIZQ condicion PARDER PYCOMA
         ;
@@ -319,9 +1070,13 @@ operacion::= IDENTIFICADOR INC_DEC
 type_char ::= CHAR identificadores IGUAL COMILLA express COMILLA PYCOMA
             | CHAR identificadores PYCOMA
             ;
-type_int ::= INT identificadores IGUAL express PYCOMA
-            | INT identificadores PYCOMA
+
+type_int ::= CabeceraDecl UnaVar:p IGUAL Expresion:e PYCOMA 
+            {: 
+                asignacion((Expresion)p,e); 
+            :}
             ;
+
 type_long ::= LONG identificadores IGUAL express PYCOMA
             | LONG identificadores PYCOMA
             ;
@@ -333,4 +1088,115 @@ identificadores ::= IDENTIFICADOR
                 | identificadores COMA IDENTIFICADOR
                 ;
 
-char ::= expresion;
+
+CabeceraDecl ::= Tipo:tp
+			{:
+                           
+				if(existeTipo(tp)) {
+					tipoActual = getTipo(tp);
+				} else {
+					parser.error(Textos.noExisteTipo);
+				}
+			:}
+		     UnaVar;
+Tipo ::=
+	   INT
+		{:
+			RESULT = new String("int");
+		:}
+	   ;
+
+ListaVar ::= ListaVar COMA UnaVar |;
+
+UnaVar ::= IDENTIFICADOR:id 
+			{:
+                            
+				if(existeSimbolo(id)) {
+					parser.error(Textos.simboloRedeclarado);
+				} else {
+                                        
+					addSimbolo(id);
+					setTipoSimbolo(id,tipoActual.getCod());
+					setCategoriaSimbolo(id,"variable");
+					setDireccionSimbolo(id,cuentaDirecciones);
+					cuentaDirecciones = cuentaDirecciones + tipoActual.getDimension();
+				}
+			:}
+		    ;
+
+Condicion ::= Condicion:c1 OR Condicion:c2 
+                    {:
+                            RESULT=or(c1,c2);
+                    :}
+	        |
+                Condicion:c1 AND Condicion:c2 
+                    {:
+                            RESULT=and(c1,c2);
+                    :}
+                |
+                Expresion:e1 IGUALIGUAL Expresion:e2 
+                    {:
+                            RESULT=igual(e1,e2);
+                    :}
+		|
+                Expresion:e1 DISTINTO Expresion:e2 
+                    {:
+                            RESULT=distinto(e1,e2);
+                    :}
+                |
+                Expresion:e1 MAYOR Expresion:e2 
+                    {:
+                            RESULT=mayor(e1,e2);
+                    :}
+                |
+                Expresion:e1 MENOR Expresion:e2 
+                    {:
+                            RESULT=menor(e1,e2);
+                    :}
+                |
+                Expresion:e1 MAYORIGUAL Expresion:e2
+                    {:
+                            RESULT = mayorIgual(e1,e2);
+                    :}
+	        |
+                Expresion:e1 MENORIGUAL Expresion:e2
+                    {:
+                            RESULT = menorIgual(e1,e2);
+                    :}
+	        |
+                NOT Condicion:c
+                    {:
+                            RESULT = not(c);
+                    :}
+	        |
+                PARIZQ Condicion:c PARDER
+                    {:
+                            RESULT=c;
+                    :}
+              ;
+
+SentFuncion ::= IDENTIFICADOR:id 
+			{:
+				numeroLlamada++;
+		
+			:}
+			PARIZQ  PARDER
+			{:
+				
+				RESULT = funcion(id, new Vector());
+			:}
+                        
+		    ;
+
+SentPutw ::= PUTW PARIZQ Expresion:e 
+			{:
+				imprimirW(e);
+			:}
+	       PARDER PYCOMA;
+
+SentPuts ::= PUTS PARIZQ CADENATEXTO:c
+			{:
+				cuentaCadenas++;
+				imprimirS(c,cuentaCadenas);
+			:}
+	       PARDER PYCOMA;
