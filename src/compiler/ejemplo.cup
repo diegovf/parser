@@ -24,6 +24,7 @@ action code {:
 	Temporales pilaTemporales;
 	Temporal temporales;
 	int direccionesGlobales;
+        ArrayList<Expresion> listId;
 
 	void inicializar() {
 		tabla = new Tabla();
@@ -40,6 +41,7 @@ action code {:
 		numeroLlamada = 1;
 		pilaTemporales = new Temporales();
 		listaCadenas = new Lista();
+                listId = new ArrayList();
 		String nombre = parser.nombreFichero.substring(0,parser.nombreFichero.lastIndexOf("."));
 		codigoIntermedio = new CodigoIntermedio(nombre+".ci");
 		try {
@@ -49,6 +51,10 @@ action code {:
 			codigoIntermedio.cerrarFicheroEscritura();
 		}
 	}
+        
+        void addExpresion(Expresion e){
+            this.listId.add(e);
+        }
 
 	Tipo getTipo(String id) {
 		return tabla.getTipo(id);
@@ -559,6 +565,19 @@ action code {:
 					null,
 					id));
 	}
+
+        void asignarIdentificadores(Expresion e) {
+            for (int i = 0; i < this.listId.size(); i++) {
+                Expresion h = this.listId.get(i);
+                if(h.getTipo()!=getTipo("int").getCod() || e.getTipo()!=getTipo("int").getCod()) {
+                    parser.error(Textos.tiposInvalidos);
+                } else {
+                    asignacion(h,e);
+                } 
+            }
+            this.listId.clear();
+            
+        }
 :} 
 
 parser code
@@ -586,6 +605,7 @@ parser code
         public void report_error(String message) {
 		System.err.println(message);
 	}
+
        
 :}
 
@@ -621,14 +641,14 @@ non terminal ifelse, ifelse_aux, else, expression, type_short, return_otro, read
 non terminal type_declaracion, const, identificadores, function_write, asignaciones, asignacion;
 non terminal parametros_write, sentencias_loops, cuerpo_ifelse, sentencia_loop;
 non terminal CabeceraDecl, DeclVar, UnaVar, ListaVar, Declaraciones, Declaracion;
-non terminal String Tipo, UnId;
-non terminal Declaracion_Char, tipo_Char, begin_dos, ParteIzq;
+non terminal String Tipo;
+non terminal Declaracion_Char, tipo_Char, begin_dos, UnId;
 non terminal SentAsignacion, Cuerpo, SentIncDec;
 non terminal Expresion Expresion, Resto, SentWhile, Condicion,BloqueOSentencia;
 non terminal DeclaracionLocal, ListaVarLocal, VarLocal, DeclaracionesLocales;
 non terminal SentIf, SentElse, SentPuts, SentPutw, cuerpoMain;
 non terminal Vector ListaParametros;
-non terminal Expresion SentFuncion;
+non terminal Expresion SentFuncion, ParteIzq;
 
 
 
@@ -772,16 +792,16 @@ declaracion ::= type_char
                 ;
 
 
-SentAsignacion ::= ParteIzq:b IGUAL Expresion:e PYCOMA
-				{:
-                                Expresion p = (Expresion)b;
-					if(p.getTipo()!=getTipo("int").getCod() || 
-						e.getTipo()!=getTipo("int").getCod()) {
-						parser.error(Textos.tiposInvalidos);
-					} else {
-						asignacion(p,e);
-					}
-				:}
+SentAsignacion ::= ParteIzq:p IGUAL Expresion:e PYCOMA
+                    {:
+                        System.out.println("SIII " + p.getTipo());
+                            if(p.getTipo()!=getTipo("int").getCod() || 
+                                    e.getTipo()!=getTipo("int").getCod()) {
+                                    parser.error(Textos.tiposInvalidos);
+                            } else {
+                                    asignacion(p,e);
+                            }
+                    :}
                    ;
 
 Expresion ::= Expresion:e1 SUMA Expresion:e2 
@@ -831,21 +851,21 @@ Expresion ::= Expresion:e1 SUMA Expresion:e2
                 ;
 
 ParteIzq ::= IDENTIFICADOR:id
-			{: 
-				Expresion e = null;
-				if(existeSimbolo(id)) {
-					Simbolo s = getSimbolo(id);
-					if(s.getCategoria().equals("variable") || s.getCategoria().equals("parametro")) {
-						e = new Expresion(s.getDireccion(),s.getTipo());
-					} else {
-						parser.error(Textos.identificadorInvalido);
-					}
-				} else {
-					parser.error(Textos.simboloNoDeclarado);
-				}
-				RESULT = e;
-			:}
-                        ;
+            {: 
+                Expresion e = null;
+                if(existeSimbolo(id)) {
+                        Simbolo s = getSimbolo(id);
+                        if(s.getCategoria().equals("variable") || s.getCategoria().equals("parametro")) {
+                                e = new Expresion(s.getDireccion(),s.getTipo());
+                        } else {
+                                parser.error(Textos.identificadorInvalido);
+                        }
+                } else {
+                        parser.error(Textos.simboloNoDeclarado);
+                }
+                RESULT = e;
+            :}
+            ;
 
 const ::= CONST | ;
 
@@ -891,24 +911,28 @@ sentencia ::= SentWhile
               | dowhile
               | return_sentencia
               | SentAsignacion
-              | SentIncDec
               | SentPutw 
               | SentPuts 
               | error 
               ;
 
 SentIncDec ::= 
-            Expresion:e MASMAS PYCOMA
+            UnId:id MASMAS PYCOMA
             {:
-                Integer d = e.getDireccion();
-                RESULT=entero(d.toString());
+                Expresion e = null;
+                if(existeSimbolo(id+"")) {
+                        Simbolo s = getSimbolo(id+"");
+                        if(s.getCategoria().equals("variable") || s.getCategoria().equals("parametro")) {
+                                e = new Expresion(s.getDireccion(),s.getTipo());
+                        } else {
+                                parser.error(Textos.identificadorInvalido);
+                        }
+                } else {
+                        parser.error(Textos.simboloNoDeclarado);
+                }
+                asignacion((Expresion)id, e);
             :}
-            |
-            MASMAS Expresion:e PYCOMA
-            {:
-                Integer d = e.getDireccion();
-                RESULT=entero(d.toString());
-            :}
+           
             ;
 DeclaracionesLocales ::= DeclaracionesLocales DeclaracionLocal | DeclaracionLocal |
                      ;
@@ -920,23 +944,24 @@ DeclaracionLocal ::= Tipo:tp
                     } else {
                         parser.error(Textos.noExisteTipo);
                     }
-            :}
-            VarLocal:p IGUAL Expresion:e PYCOMA
-            {: 
-            Expresion h = (Expresion)p;
-            if(h.getTipo()!=getTipo("int").getCod() || 
-						e.getTipo()!=getTipo("int").getCod()) {
-						parser.error(Textos.tiposInvalidos);
-					} else {
-						asignacion((Expresion)p,e);
-					}:}
+                :}
+                Resto
+                
             ;
+Resto ::= ListaVarLocal IGUAL Expresion:e PYCOMA
+            {:
+                asignarIdentificadores(e);
+            :}
+        | ListaVarLocal PYCOMA
+            {: this.listId.clear(); :}
+        ;
 
 ListaVarLocal ::= ListaVarLocal COMA VarLocal | VarLocal;
 
 
 VarLocal ::= IDENTIFICADOR:id
 	    {:
+                System.out.println("Soy " + id);
                 if(existeSimboloAmbito(id,1)) {
                     parser.error(Textos.simboloRedeclarado);
 		} else {
@@ -959,6 +984,7 @@ VarLocal ::= IDENTIFICADOR:id
                         parser.error(Textos.simboloNoDeclarado);
                 }
                 RESULT = e;
+                addExpresion(e);
 		:}
 		;
 
@@ -1129,20 +1155,27 @@ Tipo ::=
 ListaVar ::= ListaVar COMA UnaVar |;
 
 UnaVar ::= IDENTIFICADOR:id 
-			{:
-                            
-				if(existeSimbolo(id)) {
-					parser.error(Textos.simboloRedeclarado);
-				} else {
-                                        
-					addSimbolo(id);
-					setTipoSimbolo(id,tipoActual.getCod());
-					setCategoriaSimbolo(id,"variable");
-					setDireccionSimbolo(id,cuentaDirecciones);
-					cuentaDirecciones = cuentaDirecciones + tipoActual.getDimension();
-				}
-			:}
-		    ;
+            {:
+
+                if(existeSimbolo(id)) {
+                        parser.error(Textos.simboloRedeclarado);
+                } else {
+
+                        addSimbolo(id);
+                        setTipoSimbolo(id,tipoActual.getCod());
+                        setCategoriaSimbolo(id,"variable");
+                        setDireccionSimbolo(id,cuentaDirecciones);
+                        cuentaDirecciones = cuentaDirecciones + tipoActual.getDimension();
+                }
+            :}
+        ;
+
+UnId ::= IDENTIFICADOR:id 
+            {:
+                
+                RESULT = id;
+            :}
+        ;
 
 Condicion ::= Condicion:c1 OR Condicion:c2 
                     {:
