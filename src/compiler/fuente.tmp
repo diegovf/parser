@@ -1,9 +1,11 @@
                                         MOVE #11003 , .IX
                                         BR /MAIN
 MAIN:                                   NOP
+                                        MOVE #788 , #1[.IX]
+                                        MOVE #1[.IX] , [.R1]
                                         WRSTR /CADENA_1
-                                        MOVE [.R1] , #1[.IX]
-                                        WRINT #1[.IX]
+                                        MOVE [.R1] , #2[.IX]
+                                        WRINT #2[.IX]
                                         HALT
 CADENA_1: DATA                          "holaaa"
 

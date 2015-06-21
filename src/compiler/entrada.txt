@@ -1,6 +1,6 @@
 main() {
     
-    int k = 5;
+    int k = 788;
     puts("holaaa");
     putw(k);
 

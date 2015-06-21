@@ -2814,7 +2814,14 @@ class CUP$Analizador$actions {
 		int eleft = ((java_cup.runtime.Symbol)CUP$Analizador$stack.elementAt(CUP$Analizador$top-1)).left;
 		int eright = ((java_cup.runtime.Symbol)CUP$Analizador$stack.elementAt(CUP$Analizador$top-1)).right;
 		Expresion e = (Expresion)((java_cup.runtime.Symbol) CUP$Analizador$stack.elementAt(CUP$Analizador$top-1)).value;
-		 asignacion((Expresion)p, e); 
+		 
+            Expresion h = (Expresion)p;
+            if(h.getTipo()!=getTipo("int").getCod() || 
+						e.getTipo()!=getTipo("int").getCod()) {
+						parser.error(Textos.tiposInvalidos);
+					} else {
+						asignacion((Expresion)p,e);
+					}
               CUP$Analizador$result = parser.getSymbolFactory().newSymbol("DeclaracionLocal",109, ((java_cup.runtime.Symbol)CUP$Analizador$stack.elementAt(CUP$Analizador$top-5)), ((java_cup.runtime.Symbol)CUP$Analizador$stack.peek()), RESULT);
             }
           return CUP$Analizador$result;
@@ -2855,6 +2862,18 @@ class CUP$Analizador$actions {
 			setAmbitoSimbolo(id,1);
 			direccionLocal = direccionLocal + tipoActual.getDimension();
                     }
+                Expresion e = null;
+                if(existeSimbolo(id)) {
+                    Simbolo s = getSimbolo(id);
+                    if(s.getCategoria().equals("variable") || s.getCategoria().equals("parametro")) {
+                            e = new Expresion(s.getDireccion(),s.getTipo());
+                    } else {
+                            parser.error(Textos.identificadorInvalido);
+                    }
+                } else {
+                        parser.error(Textos.simboloNoDeclarado);
+                }
+                RESULT = e;
 		
               CUP$Analizador$result = parser.getSymbolFactory().newSymbol("VarLocal",111, ((java_cup.runtime.Symbol)CUP$Analizador$stack.peek()), ((java_cup.runtime.Symbol)CUP$Analizador$stack.peek()), RESULT);
             }

@@ -921,7 +921,14 @@ DeclaracionLocal ::= Tipo:tp
                     }
             :}
             VarLocal:p IGUAL Expresion:e PYCOMA
-            {: asignacion((Expresion)p, e); :}
+            {: 
+            Expresion h = (Expresion)p;
+            if(h.getTipo()!=getTipo("int").getCod() || 
+						e.getTipo()!=getTipo("int").getCod()) {
+						parser.error(Textos.tiposInvalidos);
+					} else {
+						asignacion((Expresion)p,e);
+					}:}
             ;
 
 ListaVarLocal ::= ListaVarLocal COMA VarLocal | VarLocal;
@@ -939,6 +946,18 @@ VarLocal ::= IDENTIFICADOR:id
 			setAmbitoSimbolo(id,1);
 			direccionLocal = direccionLocal + tipoActual.getDimension();
                     }
+                Expresion e = null;
+                if(existeSimbolo(id)) {
+                    Simbolo s = getSimbolo(id);
+                    if(s.getCategoria().equals("variable") || s.getCategoria().equals("parametro")) {
+                            e = new Expresion(s.getDireccion(),s.getTipo());
+                    } else {
+                            parser.error(Textos.identificadorInvalido);
+                    }
+                } else {
+                        parser.error(Textos.simboloNoDeclarado);
+                }
+                RESULT = e;
 		:}
 		;
 
