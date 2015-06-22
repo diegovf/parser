@@ -53,6 +53,7 @@ action code {:
 	}
         
         void addExpresion(Expresion e){
+            System.out.println("Añadiendo ");
             this.listId.add(e);
         }
 
@@ -126,6 +127,10 @@ action code {:
 
 	Simbolo getSimbolo(String id) {
 		return tabla.getSimbolo(id);
+	}
+
+        Simbolo getSimboloGlobal(String id) {
+		return tabla.getSimboloGlobal(id);
 	}
 
 	boolean simboloEsVector(String id) {
@@ -425,7 +430,6 @@ action code {:
 								String.valueOf(e2.getDireccion()),
 								null,
 								String.valueOf(e1.getDireccion())));
-
 	}
 
 	void cerrarCI() {
@@ -623,7 +627,7 @@ terminal Simbolo IDS;
 terminal String IDENTIFICADOR;
 terminal SUMA, RESTA, DIVISION, PRODUCTO, MODULO;
 terminal String LITERALDECIMAL,CADENATEXTO;
-terminal OR, AND, DISTINTO, NOT, IGUALIGUAL, MASMAS,PUTW,PUTS;
+terminal OR, AND, DISTINTO, NOT, IGUALIGUAL, MASMAS, MENOSMENOS, PUTW, PUTS;
 
 non terminal globals_opt, functions_opt, begin, globals_otp, mistake, express, expresionDos;
 non terminal globals, global, functions, function, return_char, return_int, return_long;
@@ -643,12 +647,13 @@ non terminal parametros_write, sentencias_loops, cuerpo_ifelse, sentencia_loop;
 non terminal CabeceraDecl, DeclVar, UnaVar, ListaVar, Declaraciones, Declaracion;
 non terminal String Tipo;
 non terminal Declaracion_Char, tipo_Char, begin_dos, UnId;
-non terminal SentAsignacion, Cuerpo, SentIncDec;
-non terminal Expresion Expresion, Resto, SentWhile, Condicion,BloqueOSentencia;
-non terminal DeclaracionLocal, ListaVarLocal, VarLocal, DeclaracionesLocales;
-non terminal SentIf, SentElse, SentPuts, SentPutw, cuerpoMain;
+non terminal SentAsignacion, Cuerpo, SentIncDec, DeclFunc, ListaArgumentos,Bloque;
+non terminal Expresion Expresion, Resto, SentWhile, Condicion, BloqueOSentencia;
+non terminal DeclaracionLocal, ListaVarLocal, VarLocal, DeclaracionesLocales, CabeceraDeclInt;
+non terminal SentIf, SentElse, SentPuts, SentPutw, cuerpoMain, Argumento, SentReturn;
 non terminal Vector ListaParametros;
-non terminal Expresion SentFuncion, ParteIzq;
+non terminal Expresion SentFuncion, ParteIzq, Parametro;
+non terminal UnIdGlobal;
 
 
 
@@ -670,10 +675,7 @@ begin ::= {:
 			saltarMain(direccionRA);
 		 :}begin_dos;
 
-begin_dos ::= globals | list_functions;
-
-globals ::= list_globals list_functions 
-            ;
+begin_dos ::= list_globals list_functions  | list_functions;
 
 list_globals  ::= global
             | list_globals  global
@@ -714,6 +716,7 @@ function ::= function_char
             | function_void
             | function_read
             | function_write
+            | DeclFunc
             | Cuerpo
             | error
             ;
@@ -794,13 +797,32 @@ declaracion ::= type_char
 
 SentAsignacion ::= ParteIzq:p IGUAL Expresion:e PYCOMA
                     {:
-                        System.out.println("SIII " + p.getTipo());
-                            if(p.getTipo()!=getTipo("int").getCod() || 
-                                    e.getTipo()!=getTipo("int").getCod()) {
-                                    parser.error(Textos.tiposInvalidos);
-                            } else {
-                                    asignacion(p,e);
-                            }
+                        if(p.getTipo()!=getTipo("int").getCod() || 
+                                e.getTipo()!=getTipo("int").getCod()) {
+                                parser.error(Textos.tiposInvalidos);
+                        } else {
+                                asignacion(p,e);
+                        }
+                    :}
+                    |
+                    ParteIzq:p MASMAS PYCOMA
+                    {:
+                        asignacion(p, suma(p, entero("1")));
+                    :}
+                    |
+                    MASMAS ParteIzq:p PYCOMA
+                    {:
+                        asignacion(p, suma(p, entero("1")));
+                    :}
+                    |                 
+                    ParteIzq:p MENOSMENOS PYCOMA
+                    {:
+                        asignacion(p, resta(p, entero("1")));
+                    :}
+                    |
+                    MENOSMENOS ParteIzq:p PYCOMA
+                    {:
+                        asignacion(p, resta(p, entero("1")));
                     :}
                    ;
 
@@ -848,6 +870,7 @@ Expresion ::= Expresion:e1 SUMA Expresion:e2
 		{:
 			RESULT = e;
 		:}
+
                 ;
 
 ParteIzq ::= IDENTIFICADOR:id
@@ -890,6 +913,7 @@ type ::= LITERALDECIMAL
         ;
 
 cuerpoMain ::= list_sentencias| ;
+
 list_sentencias ::= sentencia
                 | list_sentencias sentencia 
                 ; 
@@ -909,7 +933,7 @@ sentencia ::= SentWhile
               | read
               | write
               | dowhile
-              | return_sentencia
+              | SentReturn
               | SentAsignacion
               | SentPutw 
               | SentPuts 
@@ -950,6 +974,7 @@ DeclaracionLocal ::= Tipo:tp
             ;
 Resto ::= ListaVarLocal IGUAL Expresion:e PYCOMA
             {:
+                System.out.println("Asignando local")
                 asignarIdentificadores(e);
             :}
         | ListaVarLocal PYCOMA
@@ -961,17 +986,16 @@ ListaVarLocal ::= ListaVarLocal COMA VarLocal | VarLocal;
 
 VarLocal ::= IDENTIFICADOR:id
 	    {:
-                System.out.println("Soy " + id);
                 if(existeSimboloAmbito(id,1)) {
                     parser.error(Textos.simboloRedeclarado);
 		} else {
 		    addSimbolo(id);
-			setTipoSimbolo(id,tipoActual.getCod());
-			setCategoriaSimbolo(id,"variable");
-			setDireccionSimbolo(id,direccionLocal);
-			setAmbitoSimbolo(id,1);
-			direccionLocal = direccionLocal + tipoActual.getDimension();
-                    }
+                    setTipoSimbolo(id,tipoActual.getCod());
+                    setCategoriaSimbolo(id,"variable");
+                    setDireccionSimbolo(id,direccionLocal);
+                    setAmbitoSimbolo(id,1);
+                    direccionLocal = direccionLocal + tipoActual.getDimension();
+                }
                 Expresion e = null;
                 if(existeSimbolo(id)) {
                     Simbolo s = getSimbolo(id);
@@ -983,7 +1007,6 @@ VarLocal ::= IDENTIFICADOR:id
                 } else {
                         parser.error(Textos.simboloNoDeclarado);
                 }
-                RESULT = e;
                 addExpresion(e);
 		:}
 		;
@@ -1117,9 +1140,10 @@ type_char ::= CHAR identificadores IGUAL COMILLA express COMILLA PYCOMA
             | CHAR identificadores PYCOMA
             ;
 
-type_int ::= CabeceraDecl UnaVar:p IGUAL Expresion:e PYCOMA 
+type_int ::= CabeceraDecl ListaVar IGUAL Expresion:e PYCOMA
             {: 
-                asignacion((Expresion)p,e); 
+                System.out.println("Asignando global")
+                asignarIdentificadores(e);
             :}
             ;
 
@@ -1136,15 +1160,15 @@ identificadores ::= IDENTIFICADOR
 
 
 CabeceraDecl ::= Tipo:tp
-			{:
-                           
-				if(existeTipo(tp)) {
-					tipoActual = getTipo(tp);
-				} else {
-					parser.error(Textos.noExisteTipo);
-				}
-			:}
-		     UnaVar;
+                {:
+
+                    if(existeTipo(tp)) {
+                            tipoActual = getTipo(tp);
+                    } else {
+                            parser.error(Textos.noExisteTipo);
+                    }
+                :}
+		UnaVar;
 Tipo ::=
 	   INT
 		{:
@@ -1154,19 +1178,30 @@ Tipo ::=
 
 ListaVar ::= ListaVar COMA UnaVar |;
 
+
 UnaVar ::= IDENTIFICADOR:id 
             {:
-
                 if(existeSimbolo(id)) {
-                        parser.error(Textos.simboloRedeclarado);
+                    parser.error(Textos.simboloRedeclarado);
                 } else {
-
-                        addSimbolo(id);
-                        setTipoSimbolo(id,tipoActual.getCod());
-                        setCategoriaSimbolo(id,"variable");
-                        setDireccionSimbolo(id,cuentaDirecciones);
-                        cuentaDirecciones = cuentaDirecciones + tipoActual.getDimension();
+                    addSimbolo(id);
+                    setTipoSimbolo(id,tipoActual.getCod());
+                    setCategoriaSimbolo(id,"variable");
+                    setDireccionSimbolo(id,cuentaDirecciones);
+                    cuentaDirecciones = cuentaDirecciones + tipoActual.getDimension();
                 }
+                Expresion e = null;
+                if(existeSimbolo(id)) {
+                    Simbolo s = getSimboloGlobal(id);
+                    if(s.getCategoria().equals("variable") || s.getCategoria().equals("parametro")) {
+                            e = new Expresion(s.getDireccion(),s.getTipo());
+                    } else {
+                            parser.error(Textos.identificadorInvalido);
+                    }
+                } else {
+                        parser.error(Textos.simboloNoDeclarado);
+                }
+                addExpresion(e);
             :}
         ;
 
@@ -1229,17 +1264,42 @@ Condicion ::= Condicion:c1 OR Condicion:c2
               ;
 
 SentFuncion ::= IDENTIFICADOR:id 
-			{:
-				numeroLlamada++;
-		
-			:}
-			PARIZQ  PARDER
-			{:
-				
-				RESULT = funcion(id, new Vector());
-			:}
-                        
-		    ;
+                {:
+                    
+                    numeroLlamada++;
+                    apilarTemporales(id);
+                :}
+                PARIZQ ListaParametros:lp PARDER 
+                {:
+                    procesaLlamada(id);
+                    desapilarTemporales();
+                    RESULT = funcion(id,lp);
+                :}
+            ;
+
+ListaParametros ::= ListaParametros:lp COMA Parametro:e 
+                    {:
+                        lp.addElement(e);
+                        RESULT = lp;
+                    :}
+                    | 
+                    Parametro:e 
+                    {:
+                        Vector v = new Vector();
+                        v.addElement(e);
+                        RESULT = v;
+                    :}
+                    | 
+                    {:
+                        RESULT = new Vector();
+                    :}
+                ;
+
+Parametro ::= Expresion:e 
+                {:
+                    RESULT = procesaParametro(e);
+                :}
+          ;
 
 SentPutw ::= PUTW PARIZQ Expresion:e 
 			{:
@@ -1253,3 +1313,61 @@ SentPuts ::= PUTS PARIZQ CADENATEXTO:c
 				imprimirS(c,cuentaCadenas);
 			:}
 	       PARDER PYCOMA;
+
+DeclFunc ::= CabeceraDecl 
+			{:
+                            this.listId.clear();
+                            ciPonerEtiqueta(getIdFuncion());
+                            setCategoriaUltimoSimbolo("funcion");
+                            direccionLocal = 0;
+                            cuentaDirecciones = cuentaDirecciones - tipoActual.getDimension();
+                            hayRetorno = false;
+                            ambitoActual = 1;
+			:}
+	       PARIZQ ListaArgumentos PARDER LLAVEIZQ {: System.out.println("KJHKJHKJ"); :}Bloque
+			{:
+				eliminarAmbito(1);
+				ambitoActual = 0;
+				procesaRetorno();
+				if(hayRetorno == false) {
+					parser.error(Textos.noHayRetorno);
+				}
+			:}
+		 LLAVEDER;
+
+
+ListaArgumentos ::= ListaArgumentos COMA Argumento | Argumento | ;
+
+Argumento ::= Tipo:tp IDENTIFICADOR:id
+			{:
+				if(existeTipo(tp)) {
+					if(existeSimboloAmbito(id,1)) {
+						parser.error(Textos.simboloRedeclarado);
+					} else {
+						addSimbolo(id);
+						setTipoSimbolo(id,getTipo(tp).getCod());
+						setCategoriaSimbolo(id,"parametro");
+						setDireccionSimbolo(id,direccionLocal);
+						setAmbitoSimbolo(id,1);
+						direccionLocal = direccionLocal + getTipo(tp).getDimension();
+						setParametroUltimoSubprograma(getTipo(tp));
+					}					
+				} else {
+					parser.error(Textos.noExisteTipo);
+				}
+			:}
+		  ;
+
+Bloque ::= DeclaracionesLocales list_sentencias|;
+
+SentReturn ::= RETURN Expresion:e PYCOMA 
+			{:
+				hayRetorno = true;
+				int t = getTipoFuncion();
+				if(t!=e.getTipo()) {
+					parser.error(Textos.tipoDevueltoDiferente);
+				} else {
+					procesaRetorno(e);
+				}
+			:}
+		   ;

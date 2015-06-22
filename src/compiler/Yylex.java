@@ -1220,7 +1220,7 @@ public class Yylex implements java_cup.runtime.Scanner {
             }
           case 103: break;
           case 31: 
-            { return new Symbol(sym.INC_DEC, yychar, yyline, yytext());
+            { info(); return new Symbol(sym.MENOSMENOS, yychar, yyline, yytext());
             }
           case 104: break;
           case 32: 

@@ -1,7 +1,20 @@
+int p,t = 3;
+
+int abc(int x) {
+    x++;
+    return x;
+}
+
+
 main() {
+    int k,i = 5;
+    puts("\n");
+    puts("soy p ");
     
-    int k = 788;
-    puts("holaaa");
+    putw(abc(i));
     putw(k);
+    while( i<3 ) {
+        i++;
+    }
 
 }

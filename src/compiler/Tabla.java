@@ -129,6 +129,25 @@ class Tabla {
 		//buscara primero la local, es decir la ultima en la tabla
 		for(int i=countSimbolos()-1;i>=0;i--) {
 			simbolo = getSimbolo(i);
+                        System.out.println(simbolo.getDireccion());
+			if(simbolo.getId().equals(id)) {
+				break;
+			} else {
+				simbolo = null;
+			}
+		}
+		return simbolo;
+	}
+        
+        Simbolo getSimboloGlobal(String id) {
+		Simbolo simbolo = null;
+		//La busqueda comienza desde el final hacia el principio
+		//Esto se hace asi para cuando tengamos variables locales
+		//declaradas con el mismo nombre que las globales. Se
+		//buscara primero la local, es decir la ultima en la tabla
+		for(int i=0 ;i < countSimbolos(); i++) {
+			simbolo = getSimbolo(i);
+                        System.out.println(simbolo.getDireccion());
 			if(simbolo.getId().equals(id)) {
 				break;
 			} else {

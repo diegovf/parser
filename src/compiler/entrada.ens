@@ -1,10 +1,54 @@
                                         MOVE #11003 , .IX
                                         BR /MAIN
+                                        MOVE #3 , #1[.IX]
+                                        MOVE #1[.IX] , /10000
+                                        MOVE #1[.IX] , /10001
+abc:                                    NOP
+                                        MOVE #1 , #2[.IX]
+                                        ADD #0[.IX] , #2[.IX]
+                                        MOVE .A , #3[.IX]
+                                        MOVE #3[.IX] , #0[.IX]
+                                        MOVE #0[.IX] , #4[.IX]
+                                        MOVE #4[.IX] , #-3[.IX]
+                                        MOVE #-2[.IX] , .A
+                                        MOVE .A , .PC
+                                        MOVE #-2[.IX] , .A
+                                        MOVE .A , .PC
 MAIN:                                   NOP
-                                        MOVE #788 , #1[.IX]
-                                        MOVE #1[.IX] , [.R1]
+                                        MOVE #5 , #2[.IX]
+                                        MOVE #2[.IX] , [.R1]
+                                        MOVE #2[.IX] , #0[.IX]
                                         WRSTR /CADENA_1
-                                        MOVE [.R1] , #2[.IX]
-                                        WRINT #2[.IX]
+                                        WRSTR /CADENA_2
+                                        MOVE #0[.IX] , #4[.IX]
+                                        MOVE #4[.IX] , #6[.IX]
+                                        MOVE .IX , #5[.IX]
+                                        MOVE .IX , .A
+                                        ADD #6 , .A
+                                        MOVE .A , .IX
+                                        MOVE #LLAMADA2 , #-2[.IX]
+                                        BR /abc
+LLAMADA2:                               NOP
+                                        MOVE #-1[.IX] , .IX
+                                        WRINT #3[.IX]
+                                        MOVE [.R1] , #4[.IX]
+                                        WRINT #4[.IX]
+BUCLE_1:                                NOP
+                                        MOVE #0[.IX] , #5[.IX]
+                                        MOVE #3 , #6[.IX]
+                                        CMP #5[.IX] , #6[.IX]
+                                        BN $5
+                                        MOVE #0 , #7[.IX]
+                                        BR $3
+                                        MOVE #1 , #7[.IX]
+                                        CMP #0 , #7[.IX]
+                                        BZ /FINBUCLE_1
+                                        MOVE #1 , #8[.IX]
+                                        ADD #0[.IX] , #8[.IX]
+                                        MOVE .A , #9[.IX]
+                                        MOVE #9[.IX] , #0[.IX]
+                                        BR /BUCLE_1
+FINBUCLE_1:                             NOP
                                         HALT
-CADENA_1: DATA                          "holaaa"
+CADENA_1: DATA                          "\n"
+CADENA_2: DATA                          "soy p "

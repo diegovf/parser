@@ -104,9 +104,6 @@ OPERADORES = =|"=="|"+"|"*"|"-"|"/"|"<"|"<="|">"|">="|"!="|"!"|"||"|"&&"|"<<"|"<
 "(type)"|"*"|"&"|"new"|"true"|"false"|"%"|"#include"|"delete"|"#define"|"-="
 |"+="|"#import"|"?:"|"#ifdef"|"#else"|"#endif"|"#pragma"|"#undef"|"#error"
 
-
-INC_DEC = "++"|"--"
-
 OPERADORCOMBINADO = "+="|"-="|"*="|"/="
 CadenaTexto = \"([\x20-\x21\x23-\xFE])*\"
 
@@ -118,6 +115,7 @@ CadenaTexto = \"([\x20-\x21\x23-\xFE])*\"
 <YYINITIAL> {
     {CadenaTexto}  {return new Symbol(sym.CADENATEXTO, yychar, yyline, yytext());}
     "++"    {info(); return new Symbol(sym.MASMAS, yychar, yyline, yytext());}
+    "--"    {info(); return new Symbol(sym.MENOSMENOS, yychar, yyline, yytext());}
     "!="  {info(); return new Symbol(sym.DISTINTO, yychar, yyline, yytext());}
     "!"  {info(); return new Symbol(sym.NOT, yychar, yyline, yytext());}
     "<="  {info(); return new Symbol(sym.MAIN, yychar, yyline, yytext());}
@@ -167,11 +165,6 @@ CadenaTexto = \"([\x20-\x21\x23-\xFE])*\"
 
   /* OPERADORES COMBINADOS */
   {OPERADORCOMBINADO}           {return new Symbol(sym.OPERADORCOMBINADO, yychar, yyline, yytext());}
-
-  /* INCREMENTAR DECREMENTAR */
-  {INC_DEC}                     {return new Symbol(sym.INC_DEC, yychar, yyline, yytext());}
-    
- 
 
   /* PALABRAS RESERVADAS */
   {PR}                           {return new Symbol(sym.RESERVADA, yychar, yyline, yytext());}

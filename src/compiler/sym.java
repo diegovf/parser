@@ -30,11 +30,11 @@ public class sym {
   public static final int INC_DEC = 52;
   public static final int IGUALIGUAL = 73;
   public static final int ERROR = 43;
-  public static final int PUTW = 75;
+  public static final int PUTW = 76;
   public static final int PACKAGE = 44;
   public static final int PRODUCTO = 65;
   public static final int CADENATEXTO = 68;
-  public static final int PUTS = 76;
+  public static final int PUTS = 77;
   public static final int PCOMA = 28;
   public static final int MENOSNUM = 5;
   public static final int LLAVEIZQ = 17;
@@ -84,6 +84,7 @@ public class sym {
   public static final int RESERVADA = 40;
   public static final int LLAVEDER = 18;
   public static final int LITERALPTOFLOTANTE = 35;
+  public static final int MENOSMENOS = 75;
   public static final int LITERALDECIMAL = 67;
   public static final String[] terminalNames = new String[] {
   "EOF",
@@ -161,6 +162,7 @@ public class sym {
   "NOT",
   "IGUALIGUAL",
   "MASMAS",
+  "MENOSMENOS",
   "PUTW",
   "PUTS"
   };
